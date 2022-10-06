@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using EStudentsManager.DTOs;
-using Data.Models;
 using Data;
 using eCatalogueManager.Extensions;
 
@@ -15,52 +14,50 @@ namespace EStudentsManager.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("all")]
-        public IEnumerable<StudentToGet> GetAllStudentsFromDB()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<StudentToGet>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetAllStudentsFromDB()
         {
             var students = DataLayer.GetAllStudents();
             var result = new List<StudentToGet>();
 
             students.ForEach(s => result.Add(s.ToDto()));
-            return result;
+
+            if (result.Count == 0)
+            {
+                return NotFound("No student found");
+            }
+            return Ok(result);
         }
 
         /// <summary>
-        /// Return a student
+        /// Returns a student
         /// </summary>
         /// <param name="id">Student ID</param>
-        /// <param name="getAddress">If want to get the student's address</param>
         /// <returns></returns>
         [HttpGet("student/{id}")]
+        //////////
         public StudentToGet GetStudent([FromRoute] int id)
         {
             var student = DataLayer.GetStudent(id);
-
-            return FullStudentDetails(student.FirstName, student.LastName, student.Age, student.Address.City, student.Address.Street, student.Address.StreetNumber);
+            return student.ToDto();
         }
 
         /// <summary>
-        /// Create a student
+        /// Creates a student
         /// </summary>
         /// <param name="newStudent">Student data</param>
-        /// <param name="hasAddress">If new student has address</param>
         /// <returns></returns>
         [HttpPost("create")]
-        public StudentToGet CreateStudent([FromBody] StudentToCreate newStudent, [FromQuery] bool hasAddress)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        //////////////////
+        public IActionResult CreateStudent([FromBody] StudentToCreate newStudent)
         {
-            Student student;
-
-            if (hasAddress)
-            {
-                student =  DataLayer.CreateStudentWithAddress(newStudent.FirstName, newStudent.LastName, newStudent.Age, newStudent.City, newStudent.Street, newStudent.StreetNumber);
-                return FullStudentDetails(student.FirstName, student.LastName, student.Age, student.Address.City, student.Address.Street, student.Address.StreetNumber);
-
-            }
-            student =  DataLayer.CreateStudentWithoutAddress(newStudent.FirstName, newStudent.LastName, newStudent.Age);
-            return StudentNoAddressDetails(student.FirstName, student.LastName, student.Age);
+            return Created("Success", DataLayer.CreateStudent(newStudent.FirstName, newStudent.LastName, newStudent.Age, newStudent.City, newStudent.Street, newStudent.StreetNumber).ToDto());
         }
 
         /// <summary>
-        /// Remove a student
+        /// Removes a student
         /// </summary>
         /// <param name="id">Student ID</param>
         /// <param name="removeAddress">If want to remove address from database if address has no students</param>
@@ -72,16 +69,28 @@ namespace EStudentsManager.Controllers
         }
 
         /// <summary>
-        /// Update student's data
+        /// Updates student's data
         /// </summary>
         /// <param name="id">Student ID</param>
-        /// <param name="studUpdates">Student's new data</param>
+        /// <param name="studentUpdates">Student's new data</param>
         /// <returns></returns>
-        [HttpPut("update/{id}")]
-        public StudentToUpdate ModifyStudent([FromRoute] int id, [FromBody] StudentToUpdate studUpdates)
+        [HttpPut("update/data{id}")]
+        public StudentToGet ModifyStudent([FromRoute] int id, [FromBody] StudentToUpdate studentUpdates)
         {
-            DataLayer.ModifyStudentData(id, studUpdates.FirstName, studUpdates.LastName, studUpdates.Age);
-            return studUpdates;
+            return DataLayer.ModifyStudentData(id, studentUpdates.FirstName, studentUpdates.LastName, studentUpdates.Age).ToDto();
+        }
+
+        /// <summary>
+        /// Updates student's address
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="removeAddress">If want to remove address if has no students</param>
+        /// <param name="addressToUpdate">New address</param>
+        /// <returns></returns>
+        [HttpPut("update/address{id}")]
+        public StudentToGet ModifyAddress([FromRoute] int id, [FromQuery] bool removeAddress, [FromBody] AddressToUpdate addressToUpdate)
+        {
+            return DataLayer.ModifyStudentAddress(id, removeAddress, addressToUpdate.City, addressToUpdate.Street, addressToUpdate.StreetNumber).ToDto();
         }
     }
 }

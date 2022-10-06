@@ -1,44 +1,19 @@
 ﻿using Data.Data;
 using Data;
 using Data.Models;
+using Microsoft.EntityFrameworkCore;
 
-
-#region Exercitiu
-/*
-    • Creati un proiectde tip asp.net web api
-
-    • Creati modelul, populati DB
-        • Adaugati PK, FK precum si relatiile necesare
-
-    • Adaugati controllerul necesar(vedeti slide-ul urmator)
-
-    • Adaugati endpoint-uri pentru
-        • Obtinerea tuturor studentilor
-        • Obtinerea unui student dupa ID
-        • Creare student
-        • Stergere student
-        • Modificare date student
-        • Modificare adresa student
-            • In cazul in care studentul nu are adresa, aceasta va fi creata
-        • Stergerea unui student
-            • Cu un parametru care va specifica daca adresa este la randul ei stearsa
-
-    • Suplimentar
-        • Adaugati XML comments pentru endpoint-urile create
-            • Folositi “Enable xml comments in swagger”
-        • Folositi DTO-uri.
-        • Folositi extension methods pentru a creea dto-uri
-*/
-#endregion
+//using var conte = new StudentsManagerContextDB();
+//Console.WriteLine(conte.Addresses.Include(a => a.Students).First(a => a.AddressId == 8).Students.Count);
 
 
 ResedDB();
 
 
-DataLayer.CreateStudentWithAddress("Mara", "Danciu", 33, "Bucharest", "Traian", 23);
-DataLayer.CreateStudentWithAddress("Mariana", "Marica", 29, "Brasov", "Cizmarului", 100);
-DataLayer.CreateStudentWithAddress("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
-DataLayer.CreateStudentWithAddress("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
+DataLayer.CreateStudent("Mara", "Danciu", 33, "Bucharest", "Traian", 23);
+DataLayer.CreateStudent("Mariana", "Marica", 29, "Brasov", "Cizmarului", 100);
+DataLayer.CreateStudent("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
+DataLayer.CreateStudent("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
 
 
 using var context = new StudentsManagerContextDB();
@@ -46,7 +21,7 @@ using var context = new StudentsManagerContextDB();
 
 context.SaveChanges();
 
-void ResedDB()
+static void ResedDB()
 {
     using var context = new StudentsManagerContextDB();
 
@@ -168,6 +143,5 @@ void ResedDB()
     #endregion
 
     context.SaveChanges();
-
 }
 

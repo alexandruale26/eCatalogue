@@ -10,7 +10,6 @@ namespace Data
         public static List<Student> GetAllStudents()
         {
             using var context = new StudentsManagerContextDB();
-
             return context.Students.Include(s => s.Address).ToList();
         }
 
@@ -25,36 +24,20 @@ namespace Data
             return context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
         }
 
-        public static Student CreateStudentWithoutAddress(string firstName, string lastName, int age)
-        {
-            using var context = new StudentsManagerContextDB();
-            Student newStudent = new Student();
-
-            newStudent = new Student
-            {
-                FirstName = firstName,
-                LastName = lastName,
-                Age = age,
-            };
-
-            context.Students.Add(newStudent);
-            context.SaveChanges();
-            return newStudent;
-        }
-
-        public static Student CreateStudentWithAddress(string firstName, string lastName, int age, string city, string street, int streetNumber)
+        public static Student CreateStudent(string firstName, string lastName, int age, string? city, string? street, int? streetNumber)
         {
             using var context = new StudentsManagerContextDB();
 
             int DBAddressId = GetAddressID(city, street, (int)streetNumber);
-            Student newStudent = new Student();
-            Address newAddress = new Address();
 
-            if (DBAddressId == 0)
+            Student newStudent = new Student();
+            Address newAddress = null;
+
+            if (DBAddressId == 0 && city != null && street != null && streetNumber != null && streetNumber > 0)
             {
                 newAddress = CreateAddress(city, street, (int)streetNumber);
             }
-            else
+            else if (DBAddressId > 0)
             {
                 newAddress = context.Addresses.First(a => a.AddressId == DBAddressId);
             }
@@ -69,17 +52,16 @@ namespace Data
             context.Students.Add(newStudent);
             context.SaveChanges();
 
-            newStudent.Address = newAddress;
-
+            if (newAddress != null) newStudent.Address = newAddress;
             context.SaveChanges();
             return newStudent;
         }
 
-        public static int RemoveStudent(int studentId, bool removeAddress)
+        public static int RemoveStudent(int studentId, bool wantToRemoveAddress)
         {
             using var context = new StudentsManagerContextDB();
 
-            Student existingStudent = GetStudent(studentId, true);
+            Student existingStudent = GetStudent(studentId);
             int studentAddressId = 0;
 
             if (existingStudent.Address != null)
@@ -90,8 +72,7 @@ namespace Data
             context.Students.Remove(existingStudent);
             context.SaveChanges();
 
-
-            if (removeAddress && studentAddressId > 0)
+            if (wantToRemoveAddress && studentAddressId > 0)
             {
                 RemoveAddressIfIsEmpty(studentAddressId);
             }
@@ -107,19 +88,17 @@ namespace Data
                 throw new StudentDoesNotExistsException();
             }
 
-            Student studentToModify = context.Students.First(s => s.StudentId == studentId);
+            Student studentToModify = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
 
             if (firstName != null) studentToModify.FirstName = firstName;
-
             if (lastName != null) studentToModify.LastName = lastName;
-
-            if (age != null && age > 0) studentToModify.Age = (int)age;
+            if (age != null && age > 15) studentToModify.Age = (int)age;
 
             context.SaveChanges();
             return studentToModify;
         }
 
-        public static Address ModifyStudentAddress(int studentId, bool removeAddressIfEmpty, string? city, string? street, int? streetNumber)
+        public static Student ModifyStudentAddress(int studentId, bool removeAddressIfEmpty, string city, string street, int streetNumber)
         {
             using var context = new StudentsManagerContextDB();
 
@@ -129,29 +108,28 @@ namespace Data
             }
 
             Student existingStudent = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
-
-            if (city == null || street == null || streetNumber == null || streetNumber == 0) return existingStudent.Address;
-
             Address newAddress = new Address();
-            int oldAddressId = existingStudent.Address.AddressId;
-            int addressId = GetAddressID(city, street, (int)streetNumber);
+
+            int oldAddressId = 0;
+            int addressId = GetAddressID(city, street, streetNumber);
+
+            if (existingStudent.Address != null) oldAddressId = existingStudent.Address.AddressId;
 
             if (addressId != 0)
             {
                 newAddress = context.Addresses.First(a => a.AddressId == addressId);
-                existingStudent.Address = newAddress;
-                context.SaveChanges();
-               
-                if (removeAddressIfEmpty) RemoveAddressIfIsEmpty(oldAddressId);
-                return newAddress;
+            }
+            else
+            {
+                newAddress = CreateAddress(city, street, streetNumber);
             }
 
-            newAddress = CreateAddress(city, street, (int)streetNumber);
+            
             existingStudent.Address = newAddress;
             context.SaveChanges();
 
-            if (removeAddressIfEmpty) RemoveAddressIfIsEmpty(oldAddressId);
-            return newAddress;
+            if (removeAddressIfEmpty && oldAddressId != 0) RemoveAddressIfIsEmpty(oldAddressId);
+            return existingStudent;
         }
 
 
@@ -171,14 +149,16 @@ namespace Data
             return newAddress;
         }
 
-        private static int GetAddressID(string city, string street, int number)
+        private static int GetAddressID(string city, string street, int streetNumber)
         {
             using var context = new StudentsManagerContextDB();
+
+            if (street == null || city == null || streetNumber == null || streetNumber <= 0) return 0;
 
             var existingAddress = context.Addresses
                 .Where(a => a.City.ToLower() == city.ToLower())
                 .Where(a => a.Street.ToLower() == street.ToLower())
-                .FirstOrDefault(a => a.StreetNumber == number);
+                .FirstOrDefault(a => a.StreetNumber == streetNumber);
 
             if (existingAddress != null)
             {
