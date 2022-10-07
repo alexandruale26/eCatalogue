@@ -66,7 +66,7 @@ namespace Data
 
             if (wantToRemoveAddress && studentAddressId > 0)
             {
-                RemoveAddressIfIsEmpty(studentAddressId);
+                RemoveStudentAddressIfIsEmpty(studentAddressId);
             }
         }
 
@@ -118,7 +118,7 @@ namespace Data
             existingStudent.Address = newAddress;
             context.SaveChanges();
 
-            if (removeAddressIfEmpty && oldAddressId != 0) RemoveAddressIfIsEmpty(oldAddressId);
+            if (removeAddressIfEmpty && oldAddressId != 0) RemoveStudentAddressIfIsEmpty(oldAddressId);
             return newAddress;
         }
 
@@ -157,7 +157,7 @@ namespace Data
             return 0;
         }
 
-        private void RemoveAddressIfIsEmpty(int addressId)
+        private void RemoveStudentAddressIfIsEmpty(int addressId)
         {
             using var context = new ECatalogueContextDB(connectionString);
 
