@@ -1,18 +1,24 @@
 ﻿using Data.Data;
 using Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 string connexionString = "Data Source=DESKTOP-42S4FFT\\SQLEXPRESS;Initial Catalog=eCatalogueDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-//using var conte = new ECatalogueContextDB(connexionString);
-
-
-ResedDB(connexionString);
+using var context = new ECatalogueContextDB(connexionString);
 
 
 
 
+//ResedDB(connexionString);
+//context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
+context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
+context.SaveChanges();
 
-//context.SaveChanges();
+
+
+
+
+
 
 static void ResedDB(string connexionString)
 {
@@ -121,7 +127,7 @@ static void ResedDB(string connexionString)
         {
             City = "Iasi",
             Street = "Catedralei",
-            StreetNumber = 21
+            StreetNumber = 25
         },
     });
 
@@ -234,6 +240,27 @@ static void ResedDB(string connexionString)
         Age = 21,
         Address = address3,
     });
+
+    #endregion
+
+    context.SaveChanges();
+
+    #region Marks
+
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add( new Mark { Value = 7, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add(new Mark { Value = 9, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add(new Mark { Value = 6, SubjectId = 3, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 5).Marks.Add(new Mark { Value = 7, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 5).Marks.Add(new Mark { Value = 10, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 10).Marks.Add(new Mark { Value = 5, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 8, SubjectId = 2, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 7, SubjectId = 2, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 4, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 12).Marks.Add(new Mark { Value = 10, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 14).Marks.Add(new Mark { Value = 6, SubjectId = 3, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 11).Marks.Add(new Mark { Value = 9, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 11).Marks.Add(new Mark { Value = 8, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 7).Marks.Add(new Mark { Value = 10, SubjectId = 3, CreateDate = DateTime.Now });
 
     #endregion
 

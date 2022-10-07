@@ -9,11 +9,12 @@ namespace Data.Models
         public int MarkId { get; set; }
         public int Value { get; set; }
 
+        [ForeignKey("StudentId")]
+        public int StudentId { get; set; }
+
         [ForeignKey("SubjectId")]
         public int SubjectId { get; set; }
 
-        [ForeignKey("StudentId")]
-        public int StudentId { get; set; }
         public DateTime CreateDate { get; set; }
     }
 }
