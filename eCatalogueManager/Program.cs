@@ -1,3 +1,4 @@
+using Data;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
@@ -9,6 +10,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o => AddSwaggerDocumentation(o));
+
+// DB Connection string
+builder.Services.AddSingleton(new DataLayer(builder.Configuration.GetConnectionString("DBConnection")));
 
 var app = builder.Build();
 

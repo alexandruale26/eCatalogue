@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "eCatalogue\Console.csproj", "{E4364E53-F76A-4DDE-AF41-A4BF84C243FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Console", "eCatalogue\Console.csproj", "{E4364E53-F76A-4DDE-AF41-A4BF84C243FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "eCatalogueData\Data.csproj", "{A45F8395-2F9D-4EDB-964D-4D8A99775E47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "eCatalogueData\Data.csproj", "{A45F8395-2F9D-4EDB-964D-4D8A99775E47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eCatalogueManager", "eCatalogueManager\eCatalogueManager.csproj", "{E55D3F05-B73E-48E8-ACFF-4C2811CCE2ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ECatalogueManager", "eCatalogueManager\ECatalogueManager.csproj", "{E55D3F05-B73E-48E8-ACFF-4C2811CCE2ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

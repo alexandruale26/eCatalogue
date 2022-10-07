@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EStudentsManager.DTOs
+namespace ECatalogueManager.DTOs
 {
-    public class AddressToUpdate
+    public class AddressToCreate
     {
         [Required(ErrorMessage = "City is required")]
         public string City { get; set; }

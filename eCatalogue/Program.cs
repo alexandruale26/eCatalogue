@@ -10,20 +10,20 @@ using Microsoft.EntityFrameworkCore;
 ResedDB();
 
 
-DataLayer.CreateStudent("Mara", "Danciu", 33, "Bucharest", "Traian", 23);
-DataLayer.CreateStudent("Mariana", "Marica", 29, "Brasov", "Cizmarului", 100);
-DataLayer.CreateStudent("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
-DataLayer.CreateStudent("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
+//DataLayer.CreateStudent("Mara", "Danciu", 33, "Bucharest", "Traian", 23);
+//DataLayer.CreateStudent("Mariana", "Marica", 29, "Brasov", "Cizmarului", 100);
+//DataLayer.CreateStudent("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
+//DataLayer.CreateStudent("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
 
 
-using var context = new StudentsManagerContextDB();
+//using var context = new ECatalogueContextDB();
 
 
-context.SaveChanges();
+//context.SaveChanges();
 
 static void ResedDB()
 {
-    using var context = new StudentsManagerContextDB();
+    using var context = new ECatalogueContextDB("");
 
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();

@@ -1,4 +1,4 @@
-﻿namespace EStudentsManager.DTOs
+﻿namespace ECatalogueManager.DTOs
 {
     public class StudentToGet
     {

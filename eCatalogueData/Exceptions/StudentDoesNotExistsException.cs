@@ -3,10 +3,11 @@ namespace Data.Exceptions
 {
     public class StudentDoesNotExistsException : Exception
     {
-        private const string message = "Student does not exists";
+        public readonly string message = "";
 
-        public StudentDoesNotExistsException() : base(message) 
+        public StudentDoesNotExistsException(int id)
         {
+            this.message = string.Format("Student with ID {0} does not exists", id);
         }
     }
 }
