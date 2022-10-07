@@ -16,14 +16,14 @@ DataLayer.CreateStudent("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
 DataLayer.CreateStudent("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
 
 
-using var context = new StudentsManagerContextDB();
+using var context = new eCatalogueContextDB();
 
 
 context.SaveChanges();
 
 static void ResedDB()
 {
-    using var context = new StudentsManagerContextDB();
+    using var context = new eCatalogueContextDB();
 
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();

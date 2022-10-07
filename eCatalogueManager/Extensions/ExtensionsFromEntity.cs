@@ -3,7 +3,7 @@ using EStudentsManager.DTOs;
 
 namespace eCatalogueManager.Extensions
 {
-    public static class StudentExtensions
+    public static class ExtensionsFromEntity
     {
         public static StudentToGet ToDto(this Student student)
         {

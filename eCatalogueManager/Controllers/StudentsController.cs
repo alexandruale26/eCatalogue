@@ -25,7 +25,7 @@ namespace EStudentsManager.Controllers
 
             if (result.Count == 0)
             {
-                return NotFound("No student found");
+                return NotFound("no student found");
             }
             return Ok(result);
         }
@@ -35,12 +35,11 @@ namespace EStudentsManager.Controllers
         /// </summary>
         /// <param name="id">Student ID</param>
         /// <returns></returns>
-        [HttpGet("student/{id}")]
+        [HttpGet("{id}/student")]
         //////////
         public StudentToGet GetStudent([FromRoute] int id)
         {
-            var student = DataLayer.GetStudent(id);
-            return student.ToDto();
+            return DataLayer.GetStudent(id).ToDto();
         }
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace EStudentsManager.Controllers
         //////////////////
         public IActionResult CreateStudent([FromBody] StudentToCreate newStudent)
         {
-            return Created("Success", DataLayer.CreateStudent(newStudent.FirstName, newStudent.LastName, newStudent.Age, newStudent.City, newStudent.Street, newStudent.StreetNumber).ToDto());
+            return Created("success", DataLayer.CreateStudent(newStudent.FirstName, newStudent.LastName, newStudent.Age, newStudent.City, newStudent.Street, newStudent.StreetNumber).ToDto());
         }
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace EStudentsManager.Controllers
         /// <param name="id">Student ID</param>
         /// <param name="removeAddress">If want to remove address from database if address has no students</param>
         /// <returns></returns>
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}/delete")]
         public int RemoveStudent([FromRoute]int id, [FromQuery] bool removeAddress)
         {
             return DataLayer.RemoveStudent(id, removeAddress);
@@ -74,20 +73,20 @@ namespace EStudentsManager.Controllers
         /// <param name="id">Student ID</param>
         /// <param name="studentUpdates">Student's new data</param>
         /// <returns></returns>
-        [HttpPut("update/data{id}")]
+        [HttpPut("{id}/update/data")]
         public StudentToGet ModifyStudent([FromRoute] int id, [FromBody] StudentToUpdate studentUpdates)
         {
             return DataLayer.ModifyStudentData(id, studentUpdates.FirstName, studentUpdates.LastName, studentUpdates.Age).ToDto();
         }
 
         /// <summary>
-        /// Updates student's address
+        /// Creates or updates student's address
         /// </summary>
         /// <param name="id"></param>
         /// <param name="removeAddress">If want to remove address if has no students</param>
         /// <param name="addressToUpdate">New address</param>
         /// <returns></returns>
-        [HttpPut("update/address{id}")]
+        [HttpPut("{id}/update/address")]
         public StudentToGet ModifyAddress([FromRoute] int id, [FromQuery] bool removeAddress, [FromBody] AddressToUpdate addressToUpdate)
         {
             return DataLayer.ModifyStudentAddress(id, removeAddress, addressToUpdate.City, addressToUpdate.Street, addressToUpdate.StreetNumber).ToDto();

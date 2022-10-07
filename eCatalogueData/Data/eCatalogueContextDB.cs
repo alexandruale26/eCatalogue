@@ -3,7 +3,7 @@ using Data.Models;
 
 namespace Data.Data
 {
-    public class StudentsManagerContextDB: DbContext
+    public class eCatalogueContextDB: DbContext
     {
         public DbSet<Student> Students { get; set; }
         public DbSet<Address> Addresses { get; set; }

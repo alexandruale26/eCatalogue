@@ -9,13 +9,13 @@ namespace Data
     {
         public static List<Student> GetAllStudents()
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
             return context.Students.Include(s => s.Address).ToList();
         }
 
         public static Student GetStudent(int studentId)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
@@ -26,7 +26,7 @@ namespace Data
 
         public static Student CreateStudent(string firstName, string lastName, int age, string? city, string? street, int? streetNumber)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             int DBAddressId = GetAddressID(city, street, (int)streetNumber);
 
@@ -59,7 +59,7 @@ namespace Data
 
         public static int RemoveStudent(int studentId, bool wantToRemoveAddress)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             Student existingStudent = GetStudent(studentId);
             int studentAddressId = 0;
@@ -81,7 +81,7 @@ namespace Data
 
         public static Student ModifyStudentData(int studentId, string? firstName, string? lastName, int? age)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
@@ -100,7 +100,7 @@ namespace Data
 
         public static Student ModifyStudentAddress(int studentId, bool removeAddressIfEmpty, string city, string street, int streetNumber)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
@@ -135,7 +135,7 @@ namespace Data
 
         private static Address CreateAddress(string city, string street, int number)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             Address newAddress = new Address
             {
@@ -151,7 +151,7 @@ namespace Data
 
         private static int GetAddressID(string city, string street, int streetNumber)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             if (street == null || city == null || streetNumber == null || streetNumber <= 0) return 0;
 
@@ -169,7 +169,7 @@ namespace Data
 
         private static void RemoveAddressIfIsEmpty(int addressId)
         {
-            using var context = new StudentsManagerContextDB();
+            using var context = new eCatalogueContextDB();
 
             if (context.Addresses.Any(a => a.AddressId == addressId) && context.Addresses.Include(s => s.Students).First(a => a.AddressId == addressId).Students.Count == 0)
             {
