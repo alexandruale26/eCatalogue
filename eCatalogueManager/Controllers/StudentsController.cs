@@ -1,31 +1,38 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using EStudentsManager.DTOs;
 using Data;
-using eCatalogueManager.Extensions;
+using ECatalogueManager.DTOs;
+using ECatalogueManager.Extensions;
+using Data.Exceptions;
 
-namespace EStudentsManager.Controllers
+namespace ECatalogueManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class StudentsController : ControllerBase
     {
+        private readonly DataLayer dataLayer;
+
+        public StudentsController(DataLayer dataLayer)
+        {
+            this.dataLayer = dataLayer;
+        }
+
+
         /// <summary>
         /// Returns all students
         /// </summary>
         /// <returns></returns>
         [HttpGet("all")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<StudentToGet>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllStudentsFromDB()
         {
-            var students = DataLayer.GetAllStudents();
-            var result = new List<StudentToGet>();
+            List<StudentToGet> result = dataLayer.GetAllStudents().Select(s => s.ToDto()).ToList();
 
-            students.ForEach(s => result.Add(s.ToDto()));
-
+            // maybe should remove
             if (result.Count == 0)
             {
-                return NotFound("no student found");
+                return NotFound("No student found");
             }
             return Ok(result);
         }
@@ -33,50 +40,80 @@ namespace EStudentsManager.Controllers
         /// <summary>
         /// Returns a student
         /// </summary>
-        /// <param name="id">Student ID</param>
-        /// <returns></returns>
+        /// <param name="id">Student's ID</param>
+        /// <returns>Result</returns>
         [HttpGet("{id}/student")]
-        //////////
-        public StudentToGet GetStudent([FromRoute] int id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetStudent([FromRoute] int id)
         {
-            return DataLayer.GetStudent(id).ToDto();
+            StudentToGet student;
+            try
+            {
+                student = dataLayer.GetStudent(id).ToDto();
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok(student);
         }
 
         /// <summary>
         /// Creates a student
         /// </summary>
-        /// <param name="newStudent">Student data</param>
-        /// <returns></returns>
+        /// <param name="newStudent">New Student</param>
+        /// <returns>Result</returns>
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
-        //////////////////
         public IActionResult CreateStudent([FromBody] StudentToCreate newStudent)
         {
-            return Created("success", DataLayer.CreateStudent(newStudent.FirstName, newStudent.LastName, newStudent.Age, newStudent.City, newStudent.Street, newStudent.StreetNumber).ToDto());
+            return Created("Successfully created", dataLayer.CreateStudent(newStudent.ToEntity()).ToDto());
         }
 
         /// <summary>
         /// Removes a student
         /// </summary>
-        /// <param name="id">Student ID</param>
+        /// <param name="id">Student's ID</param>
         /// <param name="removeAddress">If want to remove address from database if address has no students</param>
-        /// <returns></returns>
+        /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
-        public int RemoveStudent([FromRoute]int id, [FromQuery] bool removeAddress)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult RemoveStudent([FromRoute]int id, [FromQuery] bool removeAddress)
         {
-            return DataLayer.RemoveStudent(id, removeAddress);
+            try
+            {
+                dataLayer.RemoveStudent(id, removeAddress);
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok("Successfully removed");
         }
 
         /// <summary>
         /// Updates student's data
         /// </summary>
         /// <param name="id">Student ID</param>
-        /// <param name="studentUpdates">Student's new data</param>
+        /// <param name="newStudent">Student's new data</param>
         /// <returns></returns>
         [HttpPut("{id}/update/data")]
-        public StudentToGet ModifyStudent([FromRoute] int id, [FromBody] StudentToUpdate studentUpdates)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult ModifyStudent([FromRoute] int id, [FromBody] StudentToCreate newStudent)
         {
-            return DataLayer.ModifyStudentData(id, studentUpdates.FirstName, studentUpdates.LastName, studentUpdates.Age).ToDto();
+            StudentToGet student;
+            try
+            {
+                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDto();
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Created("Successfully updated", student);
         }
 
         /// <summary>
@@ -84,12 +121,23 @@ namespace EStudentsManager.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <param name="removeAddress">If want to remove address if has no students</param>
-        /// <param name="addressToUpdate">New address</param>
-        /// <returns></returns>
+        /// <param name="addressToCreate">New address</param>
+        /// <returns>Result</returns>
         [HttpPut("{id}/update/address")]
-        public StudentToGet ModifyAddress([FromRoute] int id, [FromQuery] bool removeAddress, [FromBody] AddressToUpdate addressToUpdate)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddressToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult ModifyAddress([FromRoute] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate addressToCreate)
         {
-            return DataLayer.ModifyStudentAddress(id, removeAddress, addressToUpdate.City, addressToUpdate.Street, addressToUpdate.StreetNumber).ToDto();
+            AddressToGet address;
+            try
+            {
+                address = dataLayer.ModifyStudentAddress(id, removeAddress, addressToCreate.ToEntity()).ToDto();
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Created("Successfully updated", address);
         }
     }
 }

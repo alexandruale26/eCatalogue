@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Data;
-namespace eCatalogueManager.Controllers
+namespace ECatalogueManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

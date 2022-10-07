@@ -1,9 +1,9 @@
 ﻿using Data.Models;
-using EStudentsManager.DTOs;
+using ECatalogueManager.DTOs;
 
-namespace eCatalogueManager.Extensions
+namespace ECatalogueManager.Extensions
 {
-    public static class ExtensionsFromEntity
+    public static class ExtensionFromEntity
     {
         public static StudentToGet ToDto(this Student student)
         {
@@ -28,6 +28,16 @@ namespace eCatalogueManager.Extensions
                 City = null,
                 Street = null,
                 StreetNumber = null
+            };
+        }
+
+        public static AddressToGet ToDto(this Address address)
+        {
+            return new AddressToGet
+            {
+                City = address.City,
+                Street = address.Street,
+                StreetNumber = address.StreetNumber
             };
         }
     }

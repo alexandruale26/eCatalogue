@@ -5,61 +5,53 @@ using Data.Exceptions;
 
 namespace Data
 {
-    public static class DataLayer
+    public class DataLayer
     {
-        public static List<Student> GetAllStudents()
+        private readonly string connectionString;
+
+        public DataLayer(string connectionString)
         {
-            using var context = new eCatalogueContextDB();
+            this.connectionString = connectionString;
+        }
+
+
+        public List<Student> GetAllStudents()
+        {
+            using var context = new ECatalogueContextDB(connectionString);
             return context.Students.Include(s => s.Address).ToList();
         }
 
-        public static Student GetStudent(int studentId)
+        public Student GetStudent(int studentId)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
-                throw new StudentDoesNotExistsException();
+                throw new StudentDoesNotExistsException(studentId);
             }
             return context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
         }
 
-        public static Student CreateStudent(string firstName, string lastName, int age, string? city, string? street, int? streetNumber)
+        public Student CreateStudent(Student student)
         {
-            using var context = new eCatalogueContextDB();
-
-            int DBAddressId = GetAddressID(city, street, (int)streetNumber);
-
-            Student newStudent = new Student();
-            Address newAddress = null;
-
-            if (DBAddressId == 0 && city != null && street != null && streetNumber != null && streetNumber > 0)
-            {
-                newAddress = CreateAddress(city, street, (int)streetNumber);
-            }
-            else if (DBAddressId > 0)
-            {
-                newAddress = context.Addresses.First(a => a.AddressId == DBAddressId);
-            }
+            using var context = new ECatalogueContextDB(connectionString);
+            Student newStudent;
 
             newStudent = new Student
             {
-                FirstName = firstName,
-                LastName = lastName,
-                Age = age,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Age = student.Age,
             };
 
             context.Students.Add(newStudent);
             context.SaveChanges();
-
-            if (newAddress != null) newStudent.Address = newAddress;
-            context.SaveChanges();
-            return newStudent;
+            return student;
         }
 
-        public static int RemoveStudent(int studentId, bool wantToRemoveAddress)
+        public void RemoveStudent(int studentId, bool wantToRemoveAddress)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             Student existingStudent = GetStudent(studentId);
             int studentAddressId = 0;
@@ -76,42 +68,41 @@ namespace Data
             {
                 RemoveAddressIfIsEmpty(studentAddressId);
             }
-            return existingStudent.StudentId;
         }
 
-        public static Student ModifyStudentData(int studentId, string? firstName, string? lastName, int? age)
+        public Student ModifyStudentData(int studentId, Student student)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
-                throw new StudentDoesNotExistsException();
+                throw new StudentDoesNotExistsException(studentId);
             }
 
             Student studentToModify = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
 
-            if (firstName != null) studentToModify.FirstName = firstName;
-            if (lastName != null) studentToModify.LastName = lastName;
-            if (age != null && age > 15) studentToModify.Age = (int)age;
+            studentToModify.FirstName = student.FirstName;
+            studentToModify.LastName = student.LastName;
+            studentToModify.Age = student.Age;
 
             context.SaveChanges();
             return studentToModify;
         }
 
-        public static Student ModifyStudentAddress(int studentId, bool removeAddressIfEmpty, string city, string street, int streetNumber)
+        public Address ModifyStudentAddress(int studentId, bool removeAddressIfEmpty, Address address)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             if (!context.Students.Any(s => s.StudentId == studentId))
             {
-                throw new StudentDoesNotExistsException();
+                throw new StudentDoesNotExistsException(studentId);
             }
 
             Student existingStudent = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
             Address newAddress = new Address();
 
             int oldAddressId = 0;
-            int addressId = GetAddressID(city, street, streetNumber);
+            int addressId = GetAddressID(address);
 
             if (existingStudent.Address != null) oldAddressId = existingStudent.Address.AddressId;
 
@@ -121,27 +112,26 @@ namespace Data
             }
             else
             {
-                newAddress = CreateAddress(city, street, streetNumber);
+                newAddress = CreateAddress(address);
             }
-
             
             existingStudent.Address = newAddress;
             context.SaveChanges();
 
             if (removeAddressIfEmpty && oldAddressId != 0) RemoveAddressIfIsEmpty(oldAddressId);
-            return existingStudent;
+            return newAddress;
         }
 
 
-        private static Address CreateAddress(string city, string street, int number)
+        private Address CreateAddress(Address address)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             Address newAddress = new Address
             {
-                City = city,
-                Street = street,
-                StreetNumber = number
+                City = address.City,
+                Street = address.Street,
+                StreetNumber = address.StreetNumber,
             };
 
             context.Add(newAddress);
@@ -149,16 +139,16 @@ namespace Data
             return newAddress;
         }
 
-        private static int GetAddressID(string city, string street, int streetNumber)
+        private int GetAddressID(Address address)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
-            if (street == null || city == null || streetNumber == null || streetNumber <= 0) return 0;
+            if (address == null || address.StreetNumber <= 0) return 0;
 
             var existingAddress = context.Addresses
-                .Where(a => a.City.ToLower() == city.ToLower())
-                .Where(a => a.Street.ToLower() == street.ToLower())
-                .FirstOrDefault(a => a.StreetNumber == streetNumber);
+                .Where(a => a.City.ToLower() == address.City.ToLower())
+                .Where(a => a.Street.ToLower() == address.Street.ToLower())
+                .First(a => a.StreetNumber == address.StreetNumber);
 
             if (existingAddress != null)
             {
@@ -167,9 +157,9 @@ namespace Data
             return 0;
         }
 
-        private static void RemoveAddressIfIsEmpty(int addressId)
+        private void RemoveAddressIfIsEmpty(int addressId)
         {
-            using var context = new eCatalogueContextDB();
+            using var context = new ECatalogueContextDB(connectionString);
 
             if (context.Addresses.Any(a => a.AddressId == addressId) && context.Addresses.Include(s => s.Students).First(a => a.AddressId == addressId).Students.Count == 0)
             {

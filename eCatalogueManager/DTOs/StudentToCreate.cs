@@ -1,20 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace EStudentsManager.DTOs
+namespace ECatalogueManager.DTOs
 {
     public class StudentToCreate
     {
-        [Required(ErrorMessage = "first name is required")]
+        [Required(ErrorMessage = "First name is required")]
         public string FirstName { get; set; }
 
-        [Required(ErrorMessage = "last name is required")]
+        [Required(ErrorMessage = "Last name is required")]
         public string LastName { get; set; }
 
-        [Required(ErrorMessage = "age is required")]
-        [Range(15, 100)]
+        [Required(ErrorMessage = "Age is required")]
+        [Range(15, 100, ErrorMessage = "Age cannot be less than 15 or greater than 100")]
         public int Age { get; set; }
-        public string? City { get; set; }
-        public string? Street { get; set; }
-        public int? StreetNumber { get; set; }
     }
 }
