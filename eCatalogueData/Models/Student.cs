@@ -10,11 +10,6 @@ namespace Data.Models
         public string LastName { get; set; }
         public int Age { get; set; }
         public Address? Address { get; set; }
-
-
-        public override string ToString()
-        {
-            return $"{FirstName} {LastName}, Id: {StudentId}, Age: {Age}";
-        }
+        public List<Mark> Marks { get; set; } = new List<Mark>();
     }
 }

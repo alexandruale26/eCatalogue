@@ -1,33 +1,36 @@
 ﻿using Data.Data;
-using Data;
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-//using var conte = new StudentsManagerContextDB();
-//Console.WriteLine(conte.Addresses.Include(a => a.Students).First(a => a.AddressId == 8).Students.Count);
+string connexionString = "Data Source=DESKTOP-42S4FFT\\SQLEXPRESS;Initial Catalog=eCatalogueDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+using var context = new ECatalogueContextDB(connexionString);
+//var xx = context.Teachers.Include(t => t.Subject).ToList();
+
+//foreach(Teacher teacher in xx)
+//{
+//    Console.WriteLine($"{teacher.TeacherId} {teacher.Subject.Name}");
+//}
 
 
-ResedDB();
-
-
-//DataLayer.CreateStudent("Mara", "Danciu", 33, "Bucharest", "Traian", 23);
-//DataLayer.CreateStudent("Mariana", "Marica", 29, "Brasov", "Cizmarului", 100);
-//DataLayer.CreateStudent("Catalin", "Varan", 51, "Brasov", "Cazanului", 10);
-//DataLayer.CreateStudent("Daniel", "Fastoc", 28, "Iasi", "Catedralei", 21);
-
-
-//using var context = new ECatalogueContextDB();
-
-
+//Console.WriteLine();
+ResedDB(connexionString);
+//context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
+//context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
 //context.SaveChanges();
 
-static void ResedDB()
+
+
+
+
+
+
+static void ResedDB(string connexionString)
 {
-    using var context = new ECatalogueContextDB("");
+    using var context = new ECatalogueContextDB(connexionString);
 
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
-
 
     #region Addresses
 
@@ -49,7 +52,7 @@ static void ResedDB()
     {
         City = "Bucharest",
         Street = "Decebal",
-        StreetNumber = 134
+        StreetNumber = 174
     };
 
     Address address4 = new Address
@@ -59,10 +62,113 @@ static void ResedDB()
         StreetNumber = 21
     };
 
+    Address address5 = new Address
+    {
+        City = "Buzau",
+        Street = "Fierarului",
+        StreetNumber = 87
+    };
+
+    #endregion
+
+
+    #region Teachers
+
+    context.Teachers.Add(new Teacher
+    {
+        FullName = "Laurentiu Catana",
+        Address = address1,
+        Rank = Rank.Instructor,
+        Subject = new Subject
+        {
+            Name = "Mathematics",
+        }
+    });
+
+    context.Teachers.Add(new Teacher
+    {
+        FullName = "Laura Mihail",
+        Address = address5,
+        Rank = Rank.Professor,
+        Subject = new Subject
+        {
+            Name = "Civil Engineering",
+        }
+    });
+
+    context.Teachers.Add(new Teacher
+    {
+        FullName = "Dan Pop",
+        Address = address2,
+        Rank = Rank.AssistantProfessor,
+        Subject = new Subject
+        {
+            Name = "Computer Science",
+        }
+    });
+
+    context.Teachers.Add(new Teacher
+    {
+        FullName = "Carmen Dinica",
+        Address = address1,
+        Rank = Rank.AssociateProfessor,
+        Subject = new Subject
+        {
+            Name = "Psychology",
+        }
+    });
+
     #endregion
 
 
     #region Students
+
+    context.Students.Add(new Student
+    {
+        FirstName = "Daniel",
+        LastName = "Fastoc",
+        Age = 28,
+        Address = new Address
+        {
+            City = "Iasi",
+            Street = "Catedralei",
+            StreetNumber = 25
+        },
+    });
+
+    context.Students.Add(new Student
+    {
+        FirstName = "Catalin",
+        LastName = "Varan",
+        Age = 51,
+        Address = new Address
+        {
+            City = "Brasov",
+            Street = "Cazanului",
+            StreetNumber = 13
+        },
+    });
+
+    context.Students.Add(new Student
+    {
+        FirstName = "Mariana",
+        LastName = "Marica",
+        Age = 29,
+        Address = new Address
+        {
+            City = "Brasov",
+            Street = "Cizmarului",
+            StreetNumber = 100
+        },
+    });
+
+    context.Students.Add(new Student
+    {
+        FirstName = "Mara",
+        LastName = "Danciu",
+        Age = 33,
+        Address = address2,
+    });
 
     context.Students.Add(new Student
     {
@@ -139,6 +245,27 @@ static void ResedDB()
         Age = 21,
         Address = address3,
     });
+
+    #endregion
+
+    context.SaveChanges();
+
+    #region Marks
+
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add( new Mark { Value = 7, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add(new Mark { Value = 9, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 1).Marks.Add(new Mark { Value = 6, SubjectId = 3, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 5).Marks.Add(new Mark { Value = 7, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 5).Marks.Add(new Mark { Value = 10, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 10).Marks.Add(new Mark { Value = 5, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 8, SubjectId = 2, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 7, SubjectId = 2, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 3).Marks.Add(new Mark { Value = 4, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 12).Marks.Add(new Mark { Value = 10, SubjectId = 1, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 14).Marks.Add(new Mark { Value = 6, SubjectId = 3, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 11).Marks.Add(new Mark { Value = 9, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 11).Marks.Add(new Mark { Value = 8, SubjectId = 4, CreateDate = DateTime.Now });
+    context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == 7).Marks.Add(new Mark { Value = 10, SubjectId = 3, CreateDate = DateTime.Now });
 
     #endregion
 
