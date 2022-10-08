@@ -24,14 +24,5 @@ namespace ECatalogueManager.Extensions
                 StreetNumber = address.StreetNumber
             };
         }
-
-        public static Subject ToEntity(this SubjectToCreate subject)
-        {
-            return new Subject
-            {
-                Name = subject.Name,
-                TeacherId = subject.TeacherId
-            };
-        }
     }
 }

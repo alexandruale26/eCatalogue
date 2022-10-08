@@ -7,6 +7,6 @@ namespace Data.Models
         [Key]
         public int SubjectId { get; set; }
         public string Name { get; set; }
-        public int? TeacherId { get; set; }
+        public int? Teacher { get; set; }
     }
 }

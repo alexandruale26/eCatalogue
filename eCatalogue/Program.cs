@@ -9,10 +9,10 @@ using var context = new ECatalogueContextDB(connexionString);
 
 
 
-ResedDB(connexionString);
+//ResedDB(connexionString);
 //context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
-//context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
-//context.SaveChanges();
+context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
+context.SaveChanges();
 
 
 
@@ -114,7 +114,6 @@ static void ResedDB(string connexionString)
     });
 
     #endregion
-    context.SaveChanges();
 
 
     #region Students
