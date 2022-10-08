@@ -33,5 +33,16 @@ namespace ECatalogueManager.Extensions
                 TeacherId = subject.TeacherId
             };
         }
+
+        public static Mark ToEntity(this MarkToCreate mark)
+        {
+            return new Mark
+            {
+                Value = mark.Value,
+                StudentId = mark.StudentId,
+                SubjectId = mark.SubjectId,
+                CreateDate = DateTime.Now
+            };
+        }
     }
 }

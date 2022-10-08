@@ -3,6 +3,7 @@ using Data;
 using ECatalogueManager.DTOs;
 using ECatalogueManager.Extensions;
 using Data.Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace ECatalogueManager.Controllers
 {
@@ -45,7 +46,7 @@ namespace ECatalogueManager.Controllers
         [HttpGet("{id}/student")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetStudent([FromRoute] int id)
+        public IActionResult GetStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {
             StudentToGet student;
             try
@@ -80,7 +81,7 @@ namespace ECatalogueManager.Controllers
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult RemoveStudent([FromRoute]int id, [FromQuery] bool removeAddress)
+        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)]  int id, [FromQuery] bool removeAddress)
         {
             try
             {
@@ -102,7 +103,7 @@ namespace ECatalogueManager.Controllers
         [HttpPut("{id}/update/data")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyStudent([FromRoute] int id, [FromBody] StudentToCreate newStudent)
+        public IActionResult ModifyStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
         {
             StudentToGet student;
             try
@@ -123,10 +124,10 @@ namespace ECatalogueManager.Controllers
         /// <param name="removeAddress">If want to remove address if has no students</param>
         /// <param name="addressToCreate">New address</param>
         /// <returns>Result</returns>
-        [HttpPut("{id}/update/address")]
+        [HttpPost("{id}/update/address")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddressToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyAddress([FromRoute] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate addressToCreate)
+        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate addressToCreate)
         {
             AddressToGet address;
             try

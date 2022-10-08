@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Data.Models
 {
@@ -8,13 +7,8 @@ namespace Data.Models
         [Key]
         public int MarkId { get; set; }
         public int Value { get; set; }
-
-        [ForeignKey("StudentId")]
         public int StudentId { get; set; }
-
-        [ForeignKey("SubjectId")]
         public int SubjectId { get; set; }
-
         public DateTime CreateDate { get; set; }
     }
 }

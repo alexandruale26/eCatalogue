@@ -5,7 +5,7 @@ namespace Data.Models
 {
     public class Teacher
     {
-        [Key, ForeignKey("Subject")]
+        [Key]
         public int TeacherId { get; set; }
         public string FullName { get; set; }
         public Address? Address { get; set; }

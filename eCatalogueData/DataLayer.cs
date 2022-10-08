@@ -131,30 +131,90 @@ namespace Data
         public Subject AddSubject(Subject newSubject)
         {
             using var context = new ECatalogueContextDB(connectionString);
-            Subject subject = new Subject();
 
             if (context.Subjects.Any(s => s.Name == newSubject.Name))
             {
-                if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId))
+                var existingSubject = context.Subjects.First(s => s.Name == newSubject.Name);
+
+                if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId) && (existingSubject.TeacherId != newSubject.TeacherId))
                 {
-                    subject = context.Subjects.First(s => s.Name == newSubject.Name);
-                    subject.TeacherId = context.Teachers.First(t => t.TeacherId == newSubject.TeacherId).TeacherId;
+                    context.Subjects.First(s => s.TeacherId == newSubject.TeacherId).TeacherId = null;
+
+                    var existingTeacherToRemove = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+
+                    if (existingTeacherToRemove != null)
+                    {
+                        context.Teachers.Remove(existingTeacherToRemove);
+                    }
+                    existingSubject.TeacherId = newSubject.TeacherId;
                 }
-                context.Subjects.Add(subject);
                 context.SaveChanges();
-                return subject;
+                return existingSubject;
             }
 
+            Subject subject = new Subject();
+            subject.Name = newSubject.Name;
 
             if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId))
             {
-                subject.TeacherId = context.Teachers.First(t => t.TeacherId == newSubject.TeacherId).TeacherId;
+                context.Subjects.First(s => s.TeacherId == newSubject.TeacherId).TeacherId = null;
+                subject.TeacherId = newSubject.TeacherId;
             }
 
-            subject.Name = newSubject.Name;
             context.Subjects.Add(subject);
             context.SaveChanges();
             return subject;
+        }
+
+        public Mark AddMark(Mark newMark)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Students.Any(s => s.StudentId == newMark.StudentId))
+            {
+                throw new StudentDoesNotExistsException(newMark.StudentId);
+            }
+
+            if (!context.Subjects.Any(s => s.SubjectId == newMark.SubjectId))
+            {
+                throw new SubjectDoesNotExistException(newMark.SubjectId);
+            }
+            else
+            {
+                Subject existingSubject = context.Subjects.First(s => s.SubjectId == newMark.SubjectId);
+                Teacher existingTeacher = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+                
+                if (existingTeacher == null)
+                {
+                    throw new TeacherDoesNotExistException(existingSubject.SubjectId, 0);
+                }
+            }
+
+            context.Marks.Add(newMark);
+            context.SaveChanges();
+            return newMark;
+        }
+
+        public List<Mark> GetAllMarks(int studentId, int subjectId)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Students.Any(s => s.StudentId == studentId))
+            {
+                throw new StudentDoesNotExistsException(studentId);
+            }
+
+            if (subjectId == 0)
+            {
+                return context.Students.Include(s => s.Marks).First(s => s.StudentId == studentId).Marks;
+            }
+
+            if (!context.Marks.Where(m => m.StudentId == studentId).Any(m => m.SubjectId == subjectId))
+            {
+                throw new SubjectDoesNotExistException(subjectId);
+            }
+            return context.Marks.Where(m => m.StudentId == studentId).Where(m => m.SubjectId == subjectId).ToList(); // could be faster this way
+
         }
 
         #endregion

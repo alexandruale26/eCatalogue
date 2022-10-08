@@ -5,14 +5,19 @@ using Microsoft.EntityFrameworkCore;
 string connexionString = "Data Source=DESKTOP-42S4FFT\\SQLEXPRESS;Initial Catalog=eCatalogueDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
 using var context = new ECatalogueContextDB(connexionString);
+//var xx = context.Teachers.Include(t => t.Subject).ToList();
+
+//foreach(Teacher teacher in xx)
+//{
+//    Console.WriteLine($"{teacher.TeacherId} {teacher.Subject.Name}");
+//}
 
 
-
-
-//ResedDB(connexionString);
-context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 2));
+//Console.WriteLine();
+ResedDB(connexionString);
+//context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
 //context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
-context.SaveChanges();
+//context.SaveChanges();
 
 
 
