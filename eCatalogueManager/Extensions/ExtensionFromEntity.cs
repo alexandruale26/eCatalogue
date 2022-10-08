@@ -40,5 +40,14 @@ namespace ECatalogueManager.Extensions
                 StreetNumber = address.StreetNumber
             };
         }
+
+        public static SubjectToGet ToDto(this Subject subject)
+        {
+            return new SubjectToGet
+            {
+                Name = subject.Name,
+                TeacherId = (int)subject.TeacherId,
+            };
+        }
     }
 }

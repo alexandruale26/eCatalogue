@@ -15,6 +15,8 @@ namespace Data
         }
 
 
+        #region Student
+
         public List<Student> GetAllStudents()
         {
             using var context = new ECatalogueContextDB(connectionString);
@@ -114,13 +116,49 @@ namespace Data
             {
                 newAddress = CreateAddress(address);
             }
-            
+
             existingStudent.Address = newAddress;
             context.SaveChanges();
 
             if (removeAddressIfEmpty && oldAddressId != 0) RemoveStudentAddressIfIsEmpty(oldAddressId);
             return newAddress;
         }
+
+        #endregion
+
+        #region Subject
+
+        public Subject AddSubject(Subject newSubject)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+            Subject subject = new Subject();
+
+            if (context.Subjects.Any(s => s.Name == newSubject.Name))
+            {
+                if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId))
+                {
+                    subject = context.Subjects.First(s => s.Name == newSubject.Name);
+                    subject.TeacherId = context.Teachers.First(t => t.TeacherId == newSubject.TeacherId).TeacherId;
+                }
+                context.Subjects.Add(subject);
+                context.SaveChanges();
+                return subject;
+            }
+
+
+            if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId))
+            {
+                subject.TeacherId = context.Teachers.First(t => t.TeacherId == newSubject.TeacherId).TeacherId;
+            }
+
+            subject.Name = newSubject.Name;
+            context.Subjects.Add(subject);
+            context.SaveChanges();
+            return subject;
+        }
+
+        #endregion
+
 
 
         private Address CreateAddress(Address address)

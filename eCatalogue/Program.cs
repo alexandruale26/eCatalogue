@@ -10,8 +10,8 @@ using var context = new ECatalogueContextDB(connexionString);
 
 
 //ResedDB(connexionString);
-//context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
-context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
+context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 2));
+//context.Teachers.Remove(context.Teachers.First(s => s.TeacherId == 1));
 context.SaveChanges();
 
 
