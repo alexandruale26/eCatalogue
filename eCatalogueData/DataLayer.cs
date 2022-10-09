@@ -217,9 +217,39 @@ namespace Data
 
         }
 
+        public Student GetAveragesPerSubject(int studentId)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Students.Any(s => s.StudentId == studentId))
+            {
+                throw new StudentDoesNotExistsException(studentId);
+            }
+
+            // averages calculation will be made aftrwards on local machine
+            // don't want to have DTO's in DataLayer
+            return context.Students.Include(s => s.Marks).First(s => s.StudentId == studentId); 
+        }
+
+        public List<Student> GetStudentsOrderedByAverages(bool orderByAscending)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (orderByAscending)
+            {
+                return  context.Students.Include(s => s.Marks).OrderBy(s => s.Marks.Average(m => m.Value)).ToList();
+            }
+            return context.Students.Include(s => s.Marks).OrderByDescending(s => s.Marks.Average(m => m.Value)).ToList();
+
+        }
+
         #endregion
 
+        #region Teacher
 
+
+
+        #endregion
 
         private Address CreateAddress(Address address)
         {

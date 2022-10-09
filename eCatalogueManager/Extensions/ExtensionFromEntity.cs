@@ -69,5 +69,38 @@ namespace ECatalogueManager.Extensions
                 CreateDaSte = mark.CreateDate
             };
         }
+
+        public static List<AveragesPerSubjectToGet> ToDtoAverage(this Student student)
+        {
+            return student.Marks
+                .GroupBy(m => m.SubjectId)
+                .Select(m => new AveragesPerSubjectToGet { SubjectId = m.Key, Value = m
+                .Average(m => m.Value) })
+                .ToList();
+        }
+
+        public static StudentOrderedToGet ToDtoOrdered(this Student student)
+        {
+            if (student.Marks.Count == 0)
+            {
+                return new StudentOrderedToGet
+                {
+                    StudentId = student.StudentId,
+                    FirstName = student.FirstName,
+                    LastName = student.LastName,
+                    Age = student.Age,
+                    Average = 0.0
+                };
+            }
+
+            return new StudentOrderedToGet
+            {
+                StudentId = student.StudentId,
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Age = student.Age,
+                Average = Math.Round(student.Marks.Average(s => s.Value),2)
+            };
+        }
     }
 }

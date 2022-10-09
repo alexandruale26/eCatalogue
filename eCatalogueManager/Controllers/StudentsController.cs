@@ -73,28 +73,6 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Removes a student
-        /// </summary>
-        /// <param name="id">Student's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address has no students</param>
-        /// <returns>Result</returns>
-        [HttpDelete("{id}/delete")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)]  int id, [FromQuery] bool removeAddress)
-        {
-            try
-            {
-                dataLayer.RemoveStudent(id, removeAddress);
-            }
-            catch (StudentDoesNotExistsException e)
-            {
-                return NotFound(e.message);
-            }
-            return Ok("Successfully removed");
-        }
-
-        /// <summary>
         /// Updates student's data
         /// </summary>
         /// <param name="id">Student ID</param>
@@ -139,6 +117,28 @@ namespace ECatalogueManager.Controllers
                 return NotFound(e.message);
             }
             return Created("Successfully updated", address);
+        }
+
+        /// <summary>
+        /// Removes a student
+        /// </summary>
+        /// <param name="id">Student's ID</param>
+        /// <param name="removeAddress">If want to remove address from database if address has no students</param>
+        /// <returns>Result</returns>
+        [HttpDelete("{id}/delete")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress)
+        {
+            try
+            {
+                dataLayer.RemoveStudent(id, removeAddress);
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok("Successfully removed");
         }
     }
 }
