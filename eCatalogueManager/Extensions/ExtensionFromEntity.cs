@@ -66,11 +66,22 @@ namespace ECatalogueManager.Extensions
                 Value = mark.Value,
                 StudentId = mark.StudentId,
                 SubjectId = mark.SubjectId,
-                CreateDaSte = mark.CreateDate
+                TeacherId= mark.TeacherId,
+                CreatedDate = mark.CreateDate.ToString(),
             };
         }
 
-        public static List<AveragesPerSubjectToGet> ToDtoAverage(this Student student)
+        public static MarkByTeacherToGet ToDtoByTeacher(this Mark mark)
+        {
+            return new MarkByTeacherToGet
+            {
+                Value = mark.Value,
+                StudentId = mark.StudentId,
+                CreatedDate = mark.CreateDate.ToString(),
+            };
+        }
+
+        public static List<AveragesPerSubjectToGet> ToDtoByAverage(this Student student)
         {
             return student.Marks
                 .GroupBy(m => m.SubjectId)

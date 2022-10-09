@@ -188,6 +188,7 @@ namespace Data
                 {
                     throw new TeacherDoesNotExistException(existingSubject.SubjectId, 0);
                 }
+                newMark.TeacherId = existingTeacher.TeacherId;
             }
 
             context.Marks.Add(newMark);
@@ -240,6 +241,43 @@ namespace Data
                 return  context.Students.Include(s => s.Marks).OrderBy(s => s.Marks.Average(m => m.Value)).ToList();
             }
             return context.Students.Include(s => s.Marks).OrderByDescending(s => s.Marks.Average(m => m.Value)).ToList();
+
+        }
+
+        public Subject RemoveSubject(int subjectId)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Subjects.Any(s => s.SubjectId == subjectId))
+            {
+                throw new SubjectDoesNotExistException(subjectId);
+            }
+
+            Subject existingSubject = context.Subjects.First(s => s.SubjectId == subjectId);
+            Teacher existingTeacher = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+
+            context.Marks.RemoveRange(context.Marks.Where(m => m.SubjectId == subjectId));
+
+            if (existingTeacher != null)
+            {
+                context.Teachers.Remove(existingTeacher);
+            }
+
+            context.Subjects.Remove(existingSubject);
+            context.SaveChanges();
+            return existingSubject;
+        }
+
+        public List<Mark> GetMarksByTeacher(int teacherId)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Teachers.Any(t => t.TeacherId == teacherId))
+            {
+                throw new TeacherDoesNotExistException(teacherId);
+            }
+
+            return context.Marks.Where(m => m.TeacherId == teacherId).ToList();
 
         }
 

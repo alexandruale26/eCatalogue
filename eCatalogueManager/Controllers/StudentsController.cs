@@ -22,7 +22,7 @@ namespace ECatalogueManager.Controllers
         /// <summary>
         /// Returns all students
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Result</returns>
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
@@ -43,7 +43,7 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <param name="id">Student's ID</param>
         /// <returns>Result</returns>
-        [HttpGet("{id}/student")]
+        [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetStudent([FromRoute][Range(1, int.MaxValue)] int id)
@@ -63,7 +63,7 @@ namespace ECatalogueManager.Controllers
         /// <summary>
         /// Creates a student
         /// </summary>
-        /// <param name="newStudent">New Student</param>
+        /// <param name="newStudent">Student's data</param>
         /// <returns>Result</returns>
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
@@ -73,34 +73,11 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Updates student's data
+        /// Creates or updates a student's address
         /// </summary>
-        /// <param name="id">Student ID</param>
-        /// <param name="newStudent">Student's new data</param>
-        /// <returns></returns>
-        [HttpPut("{id}/update/data")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
-        {
-            StudentToGet student;
-            try
-            {
-                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDto();
-            }
-            catch (StudentDoesNotExistsException e)
-            {
-                return NotFound(e.message);
-            }
-            return Created("Successfully updated", student);
-        }
-
-        /// <summary>
-        /// Creates or updates student's address
-        /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Student's ID</param>
         /// <param name="removeAddress">If want to remove address if has no students</param>
-        /// <param name="addressToCreate">New address</param>
+        /// <param name="addressToCreate">Address's data</param>
         /// <returns>Result</returns>
         [HttpPost("{id}/update/address")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddressToGet))]
@@ -117,6 +94,29 @@ namespace ECatalogueManager.Controllers
                 return NotFound(e.message);
             }
             return Created("Successfully updated", address);
+        }
+
+        /// <summary>
+        /// Updates student's data
+        /// </summary>
+        /// <param name="id">Student's ID</param>
+        /// <param name="newStudent">Student's new data</param>
+        /// <returns>Result</returns>
+        [HttpPut("{id}/update/data")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult ModifyStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
+        {
+            StudentToGet student;
+            try
+            {
+                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDto();
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Created("Successfully updated", student);
         }
 
         /// <summary>
