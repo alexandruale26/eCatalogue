@@ -2,24 +2,15 @@
 using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-string connexionString = "Data Source=DESKTOP-42S4FFT\\SQLEXPRESS;Initial Catalog=eCatalogueDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+string connectionString = "Data Source=DESKTOP-42S4FFT\\SQLEXPRESS;Initial Catalog=eCatalogueDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+using var context = new ECatalogueContextDB(connectionString);
 
-using var context = new ECatalogueContextDB(connexionString);
-
-
-ResedDB(connexionString);
-//context.Subjects.Remove(context.Subjects.First(s => s.SubjectId == 1));
-//context.SaveChanges();
+ResedDB(connectionString);
 
 
-
-
-
-
-
-static void ResedDB(string connexionString)
+static void ResedDB(string connectionString)
 {
-    using var context = new ECatalogueContextDB(connexionString);
+    using var context = new ECatalogueContextDB(connectionString);
 
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();

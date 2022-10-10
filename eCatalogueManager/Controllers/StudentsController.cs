@@ -26,17 +26,9 @@ namespace ECatalogueManager.Controllers
         /// <returns>Result</returns>
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentToGet>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllStudentsFromDB()
         {
-            List<StudentToGet> result = dataLayer.GetAllStudents().Select(s => s.ToDto()).ToList();
-
-            // maybe should remove
-            if (result.Count == 0)
-            {
-                return NotFound("No student found");
-            }
-            return Ok(result);
+            return Ok(dataLayer.GetAllStudents().Select(s => s.ToDto()).ToList());
         }
 
         /// <summary>
@@ -80,21 +72,21 @@ namespace ECatalogueManager.Controllers
         /// <param name="removeAddress">If want to remove address from database if address is empty</param>
         /// <param name="newAddress">Address's data</param>
         /// <returns>Result</returns>
-        [HttpPost("{id}/update/address")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddressToGet))]
+        [HttpPut("{id}/update/address")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate newAddress)
         {
-            AddressToGet address;
+            StudentToGet student;
             try
             {
-                address = dataLayer.ModifyStudentAddress(id, removeAddress, newAddress.ToEntity()).ToDto();
+                student = dataLayer.ModifyStudentAddress(id, removeAddress, newAddress.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
                 return NotFound(e.message);
             }
-            return Created("Successfully updated", address);
+            return Created("Successfully updated", student);
         }
 
         /// <summary>

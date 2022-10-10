@@ -28,7 +28,7 @@ namespace ECatalogueManager.Controllers
         /// <param name="subjectId">Subject's ID</param>
         /// <returns>Result</returns>
         [HttpGet("students/{id}/marks/all")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllMarks([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery][Optional][Range(0, int.MaxValue)] int subjectId)
         {
@@ -81,7 +81,6 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllStudentsOrderedByAverages([FromQuery][Optional] bool orderByAscending)
         {
-            // shouldn't have exposed student's ID??
             List<StudentOrderedToGet> result = dataLayer.GetStudentsOrderedByAverages(orderByAscending).Select(s => s.ToDtoOrdered()).ToList();
 
             // maybe should remove
@@ -95,24 +94,36 @@ namespace ECatalogueManager.Controllers
         /// <summary>
         /// Returns all marks by a teacher
         /// </summary>
-        /// <param name="id">Teachers ID</param>
+        /// <param name="id">Teacher's ID</param>
         /// <returns>Result</returns>
         [HttpGet("teachers/{id}/marks/all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkByTeacherToGet>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllMarksByTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            List<MarkByTeacherToGet> marks;
+            return Ok(dataLayer.GetMarksByTeacher(id).Select(m => m.ToDtoByTeacher()).ToList());
+        }
+
+        /// <summary>
+        /// Returns a subject
+        /// </summary>
+        /// <param name="id">Subject's ID</param>
+        /// <returns>Result</returns>
+        [HttpGet("subjects/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubjectToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetSubject([FromRoute][Range(1, 1000)] int id)
+        {
+            SubjectToGet subject;
 
             try
             {
-                marks = dataLayer.GetMarksByTeacher(id).Select(m => m.ToDtoByTeacher()).ToList();
+                subject = dataLayer.GetSubject(id).ToDto();
             }
-            catch (TeacherDoesNotExistException e)
+            catch (SubjectDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
-            return Ok(marks);
+            return Ok(subject);
         }
 
         /// <summary>
@@ -120,7 +131,7 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <param name="newSubject">Subject's data</param>
         /// <returns>Result</returns>
-        [HttpPost("subjects/create")]
+        [HttpPut("subjects/update")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SubjectToGet))]
         public IActionResult CreateSubject([FromBody] SubjectToCreate newSubject)
         {
@@ -132,15 +143,15 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <param name="newMark">Mark's data</param>
         /// <returns>Result</returns>
-        [HttpPost("marks/add")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkToGet>))]
+        [HttpPost("marks/create")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(MarkToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult AddMarkToStudent([FromBody] MarkToCreate newMark)
         {
-            Mark mark;
+            MarkToGet mark;
             try
             {
-                mark = dataLayer.AddMark(newMark.ToEntity());
+                mark = dataLayer.AddMark(newMark.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
@@ -154,7 +165,7 @@ namespace ECatalogueManager.Controllers
             {
                 return NotFound(e.message);
             }
-            return Ok("Successfully added");
+            return Created("Successfully added", mark);
         }
 
         /// <summary>

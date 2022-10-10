@@ -64,10 +64,9 @@ namespace ECatalogueManager.Extensions
             return new MarkToGet
             {
                 Value = mark.Value,
-                StudentId = mark.StudentId,
                 SubjectId = mark.SubjectId,
                 TeacherId= mark.TeacherId,
-                CreatedDate = mark.CreateDate.ToString(),
+                CreationDate = mark.CreateDate.ToString(),
             };
         }
 
@@ -116,11 +115,27 @@ namespace ECatalogueManager.Extensions
 
         public static TeacherToGet ToDto(this Teacher teacher)
         {
+            if (teacher.Address == null)
+            {
+                return new TeacherToGet
+                {
+                    FullName = teacher.FullName,
+                    Rank = teacher.Rank.RankToName(),
+                    Subject = teacher.Subject.Name,
+                    City = null,
+                    Street = null,
+                    StreetNumber = null
+                };
+            }
+
             return new TeacherToGet
             {
                 FullName = teacher.FullName,
                 Rank = teacher.Rank.RankToName(),
-                Subject = teacher.Subject.Name
+                Subject = teacher.Subject.Name,
+                City = teacher.Address.City,
+                Street = teacher.Address.Street,
+                StreetNumber = teacher.Address.StreetNumber
             };
         }
     }
