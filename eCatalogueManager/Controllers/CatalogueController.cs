@@ -20,12 +20,118 @@ namespace ECatalogueManager.Controllers
             this.dataLayer = dataLayer;
         }
 
+
+        /// <summary>
+        /// Returns all marks for a student
+        /// </summary>
+        /// <param name="id">Student's ID</param>
+        /// <param name="subjectId">Subject's ID</param>
+        /// <returns>Result</returns>
+        [HttpGet("students/{id}/marks/all")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkToGet>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetAllMarks([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery][Optional][Range(0, int.MaxValue)] int subjectId)
+        {
+            List<MarkToGet> marks;
+            try
+            {
+                marks = dataLayer.GetAllMarks(id, subjectId).Select(m => m.ToDto()).ToList();
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            catch (SubjectDoesNotExistException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok(marks);
+        }
+
+        /// <summary>
+        /// Retuns averages per subject for a student
+        /// </summary>
+        /// <param name="id">Student's ID</param>
+        /// <returns>Result</returns>
+        [HttpGet("students/{id}/marks/ordered-by-subject-averages")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AveragesPerSubjectToGet>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetAveragesPerSubject([FromRoute][Range(1, int.MaxValue)] int id)
+        {
+            Student student;
+
+            try
+            {
+                student = dataLayer.GetAveragesPerSubject(id);
+            }
+            catch (StudentDoesNotExistsException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok(student.ToDtoByAverage());
+        }
+
+        /// <summary>
+        /// Returns all students ordered by averages
+        /// </summary>
+        /// <param name="orderByAscending">If want to order students by ascending</param>
+        /// <returns>Result</returns>
+        [HttpGet("students/marks/ordered-by-averages")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentOrderedToGet>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetAllStudentsOrderedByAverages([FromQuery][Optional] bool orderByAscending)
+        {
+            List<StudentOrderedToGet> result = dataLayer.GetStudentsOrderedByAverages(orderByAscending).Select(s => s.ToDtoOrdered()).ToList();
+
+            // maybe should remove
+            if (result.Count == 0)
+            {
+                return NotFound("No student found");
+            }
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Returns all marks by a teacher
+        /// </summary>
+        /// <param name="id">Teacher's ID</param>
+        /// <returns>Result</returns>
+        [HttpGet("teachers/{id}/marks/all")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkByTeacherToGet>))]
+        public IActionResult GetAllMarksByTeacher([FromRoute][Range(1, int.MaxValue)] int id)
+        {
+            return Ok(dataLayer.GetMarksByTeacher(id).Select(m => m.ToDtoByTeacher()).ToList());
+        }
+
+        /// <summary>
+        /// Returns a subject
+        /// </summary>
+        /// <param name="id">Subject's ID</param>
+        /// <returns>Result</returns>
+        [HttpGet("subjects/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubjectToGet))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
+        public IActionResult GetSubject([FromRoute][Range(1, 1000)] int id)
+        {
+            SubjectToGet subject;
+
+            try
+            {
+                subject = dataLayer.GetSubject(id).ToDto();
+            }
+            catch (SubjectDoesNotExistException e)
+            {
+                return NotFound(e.message);
+            }
+            return Ok(subject);
+        }
+
         /// <summary>
         /// Creates or updates a subject
         /// </summary>
         /// <param name="newSubject">Subject's data</param>
         /// <returns>Result</returns>
-        [HttpPost("create")]
+        [HttpPut("subjects/update")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SubjectToGet))]
         public IActionResult CreateSubject([FromBody] SubjectToCreate newSubject)
         {
@@ -37,15 +143,15 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <param name="newMark">Mark's data</param>
         /// <returns>Result</returns>
-        [HttpPost("mark/add")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkToGet>))]
+        [HttpPost("marks/create")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(MarkToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult AddMarkToStudent([FromBody] MarkToCreate newMark)
         {
-            Mark mark;
+            MarkToGet mark;
             try
             {
-                mark = dataLayer.AddMark(newMark.ToEntity());
+                mark = dataLayer.AddMark(newMark.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
@@ -59,28 +165,30 @@ namespace ECatalogueManager.Controllers
             {
                 return NotFound(e.message);
             }
-            return Ok("Successfully added");
+            return Created("Successfully added", mark);
         }
 
-        [HttpGet("{studentId}/mark/all")]
+        /// <summary>
+        /// Removes a subject
+        /// </summary>
+        /// <param name="id">Subject's ID</param>
+        /// <returns>Result</returns>
+        [HttpDelete("subjects/{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetAllMarks([FromRoute][Range(1, int.MaxValue)] int studentId, [FromQuery][Optional][Range(1, int.MaxValue)] int subjectId)
+        public IActionResult RemoveSubject([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            List<MarkToGet> marks;
+            Subject subject;
+
             try
             {
-                marks = dataLayer.GetAllMarks(studentId, subjectId).Select(m => m.ToDto()).ToList();
-            }
-            catch (StudentDoesNotExistsException e)
-            {
-                return NotFound(e.message);
+                subject = dataLayer.RemoveSubject(id);
             }
             catch (SubjectDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
-            return Ok(marks);
+            return Ok($"Subject {subject.Name} was successfully removed");
         }
     }
 }

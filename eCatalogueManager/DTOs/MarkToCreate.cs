@@ -8,12 +8,12 @@ namespace ECatalogueManager.DTOs
         [Range(1, 10, ErrorMessage = "Value cannot be less than 1 or greater than 10")]
         public int Value { get; set; }
 
-        [Required(ErrorMessage = "StudentID is required")]
-        [Range(1, int.MaxValue, ErrorMessage = "StudentID cannot be less than 1")]
+        [Required(ErrorMessage = "Student's ID is required")]
+        [Range(1, int.MaxValue, ErrorMessage = "ID cannot be less than 1")]
         public int StudentId { get; set; }
 
-        [Required(ErrorMessage = "SubjectID is required")]
-        [Range(1, 1000, ErrorMessage = "SubjectID cannot be less than 1 or greater than 1000")]
+        [Required(ErrorMessage = "Subject's ID is required")]
+        [Range(1, 1000, ErrorMessage = "ID cannot be less than 1 or greater than 1000")]
         public int SubjectId { get; set; }
     }
 }

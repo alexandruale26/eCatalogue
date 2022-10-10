@@ -3,7 +3,7 @@ namespace Data.Models
 {
     public enum Rank
     {
-        Instructor,
+        Instructor = 1,
         AssistantProfessor,
         AssociateProfessor,
         Professor
