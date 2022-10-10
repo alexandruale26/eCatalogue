@@ -12,7 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o => AddSwaggerDocumentation(o));
 
 // DB Connection string
-builder.Services.AddSingleton(new DataLayer(builder.Configuration.GetConnectionString("DBConnection")));
+string connectionString = builder.Configuration.GetConnectionString("DBConnection");
+builder.Services.AddSingleton(new DataLayer(connectionString));
+builder.Services.AddSingleton(new SeedDB(connectionString));
 
 var app = builder.Build();
 

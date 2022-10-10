@@ -2,7 +2,6 @@
 using Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Data.Exceptions;
-using System.Linq;
 
 namespace Data
 {

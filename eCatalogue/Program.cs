@@ -59,7 +59,7 @@ static void ResedDB(string connectionString)
 
     context.Teachers.Add(new Teacher
     {
-        FullName = "Laurentiu Catana",
+        FullName = "Laurentiu Catarg",
         Address = address1,
         Rank = Rank.Instructor,
         Subject = new Subject
@@ -122,12 +122,12 @@ static void ResedDB(string connectionString)
     context.Students.Add(new Student
     {
         FirstName = "Catalin",
-        LastName = "Varan",
+        LastName = "Varciu",
         Age = 51,
         Address = new Address
         {
             City = "Brasov",
-            Street = "Cazanului",
+            Street = "Garii",
             StreetNumber = 13
         },
     });
@@ -170,7 +170,7 @@ static void ResedDB(string connectionString)
 
     context.Students.Add(new Student
     {
-        FirstName = "Mihaiela",
+        FirstName = "Mihaela",
         LastName = "Morar",
         Age = 18
     });
@@ -186,7 +186,7 @@ static void ResedDB(string connectionString)
     context.Students.Add(new Student
     {
         FirstName = "Culita",
-        LastName = "Victor",
+        LastName = "Victoras",
         Age = 44,
         Address = address2,
     });
@@ -209,7 +209,7 @@ static void ResedDB(string connectionString)
     context.Students.Add(new Student
     {
         FirstName = "Bogdan",
-        LastName = "Moraru",
+        LastName = "Moraciu",
         Age = 24
     });
 
@@ -224,7 +224,7 @@ static void ResedDB(string connectionString)
     context.Students.Add(new Student
     {
         FirstName = "Flavius",
-        LastName = "Stancu",
+        LastName = "Stancuta",
         Age = 21,
         Address = address3,
     });
