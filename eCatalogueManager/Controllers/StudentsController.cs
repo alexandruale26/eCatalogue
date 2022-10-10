@@ -4,6 +4,7 @@ using ECatalogueManager.DTOs;
 using ECatalogueManager.Extensions;
 using Data.Exceptions;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace ECatalogueManager.Controllers
 {
@@ -76,18 +77,18 @@ namespace ECatalogueManager.Controllers
         /// Creates or updates a student's address
         /// </summary>
         /// <param name="id">Student's ID</param>
-        /// <param name="removeAddress">If want to remove address if has no students</param>
-        /// <param name="addressToCreate">Address's data</param>
+        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
+        /// <param name="newAddress">Address's data</param>
         /// <returns>Result</returns>
         [HttpPost("{id}/update/address")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AddressToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate addressToCreate)
+        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate newAddress)
         {
             AddressToGet address;
             try
             {
-                address = dataLayer.ModifyStudentAddress(id, removeAddress, addressToCreate.ToEntity()).ToDto();
+                address = dataLayer.ModifyStudentAddress(id, removeAddress, newAddress.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
@@ -123,7 +124,7 @@ namespace ECatalogueManager.Controllers
         /// Removes a student
         /// </summary>
         /// <param name="id">Student's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address has no students</param>
+        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
         /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]

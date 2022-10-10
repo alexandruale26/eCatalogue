@@ -8,9 +8,9 @@ namespace ECatalogueManager.Extensions
         {
             return (int)rank switch
             {
-                1 => "Assistant Professor",
-                2 => "Associate Professor",
-                3 => "Professor",
+                2 => "Assistant Professor",
+                3 => "Associate Professor",
+                4 => "Professor",
                 _ => "Instructor",
             };
         }

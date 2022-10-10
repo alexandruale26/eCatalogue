@@ -113,5 +113,15 @@ namespace ECatalogueManager.Extensions
                 Average = Math.Round(student.Marks.Average(s => s.Value),2)
             };
         }
+
+        public static TeacherToGet ToDto(this Teacher teacher)
+        {
+            return new TeacherToGet
+            {
+                FullName = teacher.FullName,
+                Rank = teacher.Rank.RankToName(),
+                Subject = teacher.Subject.Name
+            };
+        }
     }
 }

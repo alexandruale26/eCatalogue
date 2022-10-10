@@ -97,7 +97,7 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <param name="id">Teachers ID</param>
         /// <returns>Result</returns>
-        [HttpGet("teachers/{id}/marks")]
+        [HttpGet("teachers/{id}/marks/all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkByTeacherToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllMarksByTeacher([FromRoute][Range(1, int.MaxValue)] int id)

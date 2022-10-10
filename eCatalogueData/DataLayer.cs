@@ -2,6 +2,7 @@
 using Data.Data;
 using Microsoft.EntityFrameworkCore;
 using Data.Exceptions;
+using System.Linq;
 
 namespace Data
 {
@@ -51,24 +52,24 @@ namespace Data
             return student;
         }
 
-        public void RemoveStudent(int studentId, bool wantToRemoveAddress)
+        public void RemoveStudent(int studentId, bool removeAddressIfEmpty)
         {
             using var context = new ECatalogueContextDB(connectionString);
 
             Student existingStudent = GetStudent(studentId);
-            int studentAddressId = 0;
+            int existingAddressId = 0;
 
             if (existingStudent.Address != null)
             {
-                studentAddressId = existingStudent.Address.AddressId;
+                existingAddressId = existingStudent.Address.AddressId;
             }
 
             context.Students.Remove(existingStudent);
             context.SaveChanges();
 
-            if (wantToRemoveAddress && studentAddressId > 0)
+            if (removeAddressIfEmpty && existingAddressId > 0)
             {
-                RemoveStudentAddressIfIsEmpty(studentAddressId);
+                RemoveAddressIfIsEmpty(existingAddressId);
             }
         }
 
@@ -120,7 +121,7 @@ namespace Data
             existingStudent.Address = newAddress;
             context.SaveChanges();
 
-            if (removeAddressIfEmpty && oldAddressId != 0) RemoveStudentAddressIfIsEmpty(oldAddressId);
+            if (removeAddressIfEmpty && oldAddressId > 0) RemoveAddressIfIsEmpty(oldAddressId);
             return newAddress;
         }
 
@@ -134,13 +135,13 @@ namespace Data
 
             if (context.Subjects.Any(s => s.Name == newSubject.Name))
             {
-                var existingSubject = context.Subjects.First(s => s.Name == newSubject.Name);
+                Subject existingSubject = context.Subjects.First(s => s.Name == newSubject.Name);
 
                 if (context.Teachers.Any(t => t.TeacherId == newSubject.TeacherId) && (existingSubject.TeacherId != newSubject.TeacherId))
                 {
                     context.Subjects.First(s => s.TeacherId == newSubject.TeacherId).TeacherId = null;
 
-                    var existingTeacherToRemove = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+                    Teacher existingTeacherToRemove = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
 
                     if (existingTeacherToRemove != null)
                     {
@@ -254,17 +255,28 @@ namespace Data
             }
 
             Subject existingSubject = context.Subjects.First(s => s.SubjectId == subjectId);
-            Teacher existingTeacher = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+            Teacher existingTeacher = context.Teachers.Include(t => t.Address).FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+            int existingAddressId = 0;
 
             context.Marks.RemoveRange(context.Marks.Where(m => m.SubjectId == subjectId));
 
             if (existingTeacher != null)
             {
+                if(existingTeacher.Address != null)
+                {
+                    existingAddressId = existingTeacher.Address.AddressId;
+                }
+
                 context.Teachers.Remove(existingTeacher);
             }
 
             context.Subjects.Remove(existingSubject);
             context.SaveChanges();
+
+            if (existingAddressId > 0)
+            {
+                RemoveAddressIfIsEmpty(existingAddressId);
+            }
             return existingSubject;
         }
 
@@ -284,6 +296,92 @@ namespace Data
         #endregion
 
         #region Teacher
+
+        public Teacher CreateTeacher(Teacher newTeacher)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+            int existingSubjectId = newTeacher.Subject.SubjectId;
+
+            if (!context.Subjects.Any(s => s.SubjectId == existingSubjectId))
+            {
+                throw new SubjectDoesNotExistException(existingSubjectId);
+            }
+
+            Subject existingSubject = context.Subjects.First(s => s.SubjectId == existingSubjectId);
+            Teacher existingTeacherToRemove = context.Teachers.FirstOrDefault(t => t.TeacherId == existingSubject.TeacherId);
+            
+            if (existingTeacherToRemove != null)
+            {
+                context.Teachers.Remove(existingTeacherToRemove);
+            }
+
+            newTeacher.Subject = existingSubject;
+            context.Teachers.Add(newTeacher);
+            context.SaveChanges();
+            return newTeacher;
+        }
+
+        public void RemoveTeacher(int teacherId, bool removeAddressIfEmpty)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Teachers.Any(t => t.TeacherId == teacherId))
+            {
+                throw new TeacherDoesNotExistException(teacherId);
+            }
+
+            Teacher existingTeacher = context.Teachers.Include(t => t.Address).First(t => t.TeacherId == teacherId);
+            int existingAddressId = 0;
+
+            if (existingTeacher.Address != null)
+            {
+                existingAddressId = existingTeacher.Address.AddressId;
+            }
+
+            Subject existingSubject = context.Subjects.First(s => s.TeacherId == teacherId);
+            existingSubject.TeacherId = null;
+
+            context.Teachers.Remove(existingTeacher);
+            context.SaveChanges();
+            
+            if (removeAddressIfEmpty && existingAddressId > 0)
+            {
+                RemoveAddressIfIsEmpty(existingAddressId);
+            }
+        }
+
+        public Address ModifyTeacherAddress(int teacherId, bool removeAddressIfEmpty, Address address)
+        {
+            using var context = new ECatalogueContextDB(connectionString);
+
+            if (!context.Teachers.Any(t => t.TeacherId == teacherId))
+            {
+                throw new TeacherDoesNotExistException(teacherId);
+            }
+
+            Teacher existingTeacher = context.Teachers.Include(t => t.Address).First(t => t.TeacherId == teacherId);
+            Address newAddress = new Address();
+
+            int oldAddressId = 0;
+            int addressId = GetAddressID(address);
+
+            if (existingTeacher.Address != null) oldAddressId = existingTeacher.Address.AddressId;
+
+            if (addressId != 0)
+            {
+                newAddress = context.Addresses.First(a => a.AddressId == addressId);
+            }
+            else
+            {
+                newAddress = CreateAddress(address);
+            }
+
+            existingTeacher.Address = newAddress;
+            context.SaveChanges();
+
+            if (removeAddressIfEmpty && oldAddressId > 0) RemoveAddressIfIsEmpty(oldAddressId);
+            return newAddress;
+        }
 
 
 
@@ -309,12 +407,12 @@ namespace Data
         {
             using var context = new ECatalogueContextDB(connectionString);
 
-            if (address == null || address.StreetNumber <= 0) return 0;
+            if (address == null) return 0;
 
-            var existingAddress = context.Addresses
+            Address existingAddress = context.Addresses
                 .Where(a => a.City.ToLower() == address.City.ToLower())
                 .Where(a => a.Street.ToLower() == address.Street.ToLower())
-                .First(a => a.StreetNumber == address.StreetNumber);
+                .FirstOrDefault(a => a.StreetNumber == address.StreetNumber);
 
             if (existingAddress != null)
             {
@@ -323,13 +421,15 @@ namespace Data
             return 0;
         }
 
-        private void RemoveStudentAddressIfIsEmpty(int addressId)
+        private void RemoveAddressIfIsEmpty(int addressId)
         {
             using var context = new ECatalogueContextDB(connectionString);
 
-            if (context.Addresses.Any(a => a.AddressId == addressId) && context.Addresses.Include(s => s.Students).First(a => a.AddressId == addressId).Students.Count == 0)
+            Address address = context.Addresses.Include(a => a.Students).Include(a => a.Teachers).First(a => a.AddressId == addressId);
+
+            if (address.Students.Count == 0 && address.Teachers.Count == 0)
             {
-                context.Addresses.Remove(context.Addresses.First(a => a.AddressId == addressId));
+                context.Addresses.Remove(address);
             }
             context.SaveChanges();
         }

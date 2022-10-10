@@ -44,5 +44,15 @@ namespace ECatalogueManager.Extensions
                 CreateDate = DateTime.Now
             };
         }
+
+        public static Teacher ToEntity(this TeacherToCreate teacher)
+        {
+            return new Teacher
+            {
+                FullName = teacher.FullName,
+                Rank = teacher.Rank,
+                Subject = new Subject { SubjectId = teacher.SubjectId }
+            };
+        }
     }
 }
