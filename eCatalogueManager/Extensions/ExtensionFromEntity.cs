@@ -7,27 +7,22 @@ namespace ECatalogueManager.Extensions
     {
         public static StudentToGet ToDto(this Student student)
         {
-            if (student.Address != null)
-            {
-                return new StudentToGet
-                {
-                    FirstName = student.FirstName,
-                    LastName = student.LastName,
-                    Age = student.Age,
-                    City = student.Address.City,
-                    Street = student.Address.Street,
-                    StreetNumber = student.Address.StreetNumber
-                };
-            }
-
             return new StudentToGet
             {
                 FirstName = student.FirstName,
                 LastName = student.LastName,
                 Age = student.Age,
-                City = null,
-                Street = null,
-                StreetNumber = null
+                Address = student.Address
+            };
+        }
+
+        public static BasicStudentToGet ToDtoBasic(this Student student)
+        {
+            return new BasicStudentToGet
+            {
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                Age = student.Age,
             };
         }
 
@@ -115,16 +110,14 @@ namespace ECatalogueManager.Extensions
 
         public static TeacherToGet ToDto(this Teacher teacher)
         {
-            if (teacher.Address == null)
+            if (teacher.Subject == null)
             {
                 return new TeacherToGet
                 {
                     FullName = teacher.FullName,
                     Rank = teacher.Rank.RankToName(),
-                    Subject = teacher.Subject.Name,
-                    City = null,
-                    Street = null,
-                    StreetNumber = null
+                    Subject = null,
+                    Address = teacher.Address
                 };
             }
 
@@ -133,10 +126,18 @@ namespace ECatalogueManager.Extensions
                 FullName = teacher.FullName,
                 Rank = teacher.Rank.RankToName(),
                 Subject = teacher.Subject.Name,
-                City = teacher.Address.City,
-                Street = teacher.Address.Street,
-                StreetNumber = teacher.Address.StreetNumber
+                Address = teacher.Address
             };
         }
+
+        public static BasicTeacherToGet ToDtoBasic(this Teacher teacher)
+        {
+            return new BasicTeacherToGet
+            {
+                FullName = teacher.FullName,
+                Rank = teacher.Rank.RankToName()
+            };
+        }
+
     }
 }

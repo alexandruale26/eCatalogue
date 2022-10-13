@@ -4,7 +4,8 @@ using ECatalogueManager.DTOs;
 using ECatalogueManager.Extensions;
 using Data.Exceptions;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
+using Data.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECatalogueManager.Controllers
 {
@@ -13,10 +14,12 @@ namespace ECatalogueManager.Controllers
     public class StudentsController : ControllerBase
     {
         private readonly DataLayer dataLayer;
+        private readonly ECatalogueContextDB context;
 
-        public StudentsController(DataLayer dataLayer)
+        public StudentsController(DataLayer dataLayer, ECatalogueContextDB context)
         {
             this.dataLayer = dataLayer;
+            this.context = context;
         }
 
 
@@ -28,7 +31,7 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentToGet>))]
         public IActionResult GetAllStudentsFromDB()
         {
-            return Ok(dataLayer.GetAllStudents().Select(s => s.ToDto()).ToList());
+            return Ok(context.Students.Include(s => s.Address).Select(s => s.ToDto()).ToList());
         }
 
         /// <summary>
@@ -59,34 +62,33 @@ namespace ECatalogueManager.Controllers
         /// <param name="newStudent">Student's data</param>
         /// <returns>Result</returns>
         [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BasicStudentToGet))]
         public IActionResult CreateStudent([FromBody] StudentToCreate newStudent)
         {
-            return Created("Successfully created", dataLayer.CreateStudent(newStudent.ToEntity()).ToDto());
+            return Created("Successfully created", dataLayer.CreateStudent(newStudent.ToEntity()).ToDtoBasic());
         }
 
         /// <summary>
         /// Creates or updates a student's address
         /// </summary>
         /// <param name="id">Student's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
         /// <param name="newAddress">Address's data</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/address")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate newAddress)
+        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
         {
             StudentToGet student;
             try
             {
-                student = dataLayer.ModifyStudentAddress(id, removeAddress, newAddress.ToEntity()).ToDto();
+                student = dataLayer.ModifyStudentAddress(id, newAddress.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
                 return NotFound(e.message);
             }
-            return Created("Successfully updated", student);
+            return Ok(student);
         }
 
         /// <summary>
@@ -96,36 +98,35 @@ namespace ECatalogueManager.Controllers
         /// <param name="newStudent">Student's new data</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/data")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(StudentToGet))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasicStudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult ModifyStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
         {
-            StudentToGet student;
+            BasicStudentToGet student;
             try
             {
-                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDto();
+                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDtoBasic();
             }
             catch (StudentDoesNotExistsException e)
             {
                 return NotFound(e.message);
             }
-            return Created("Successfully updated", student);
+            return Ok(student);
         }
 
         /// <summary>
         /// Removes a student
         /// </summary>
         /// <param name="id">Student's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
         /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress)
+        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {
             try
             {
-                dataLayer.RemoveStudent(id, removeAddress);
+                dataLayer.RemoveStudent(id);
             }
             catch (StudentDoesNotExistsException e)
             {

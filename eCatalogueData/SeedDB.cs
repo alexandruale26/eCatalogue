@@ -6,66 +6,29 @@ namespace Data
 {
     public class SeedDB
     {
-        private readonly string connectionString;
-        public SeedDB(string connectionString)
+        private readonly ECatalogueContextDB context;
+        public SeedDB(ECatalogueContextDB context)
         {
-            this.connectionString = connectionString;
+            this.context = context;
         }
 
 
         public void PopulateDB()
         {
-            using var context = new ECatalogueContextDB(connectionString);
-
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-
-            #region Addresses
-
-            Address address1 = new Address
-            {
-                City = "Bucharest",
-                Street = "Traian",
-                StreetNumber = 23
-            };
-
-            Address address2 = new Address
-            {
-                City = "Bacau",
-                Street = "Mioritei",
-                StreetNumber = 2
-            };
-
-            Address address3 = new Address
-            {
-                City = "Bucharest",
-                Street = "Decebal",
-                StreetNumber = 174
-            };
-
-            Address address4 = new Address
-            {
-                City = "Iasi",
-                Street = "Catedralei",
-                StreetNumber = 21
-            };
-
-            Address address5 = new Address
-            {
-                City = "Buzau",
-                Street = "Fierarului",
-                StreetNumber = 87
-            };
-
-            #endregion
-
 
             #region Teachers
 
             context.Teachers.Add(new Teacher
             {
                 FullName = "Laurentiu Catarg",
-                Address = address1,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Traian",
+                    StreetNumber = 23
+                },
                 Rank = Rank.Instructor,
                 Subject = new Subject
                 {
@@ -76,7 +39,12 @@ namespace Data
             context.Teachers.Add(new Teacher
             {
                 FullName = "Laura Mihail",
-                Address = address5,
+                Address = new Address
+                {
+                    City = "Buzau",
+                    Street = "Fierarului",
+                    StreetNumber = 87
+                },
                 Rank = Rank.Professor,
                 Subject = new Subject
                 {
@@ -87,7 +55,12 @@ namespace Data
             context.Teachers.Add(new Teacher
             {
                 FullName = "Dan Pop",
-                Address = address2,
+                Address = new Address
+                {
+                    City = "Bacau",
+                    Street = "Mioritei",
+                    StreetNumber = 2
+                },
                 Rank = Rank.AssistantProfessor,
                 Subject = new Subject
                 {
@@ -98,7 +71,12 @@ namespace Data
             context.Teachers.Add(new Teacher
             {
                 FullName = "Carmen Dinica",
-                Address = address1,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Traian",
+                    StreetNumber = 23
+                },
                 Rank = Rank.AssociateProfessor,
                 Subject = new Subject
                 {
@@ -106,8 +84,13 @@ namespace Data
                 }
             });
 
-            #endregion
+            context.Teachers.Add(new Teacher
+            {
+                FullName = "Claudia Avram",
+                Rank = Rank.Professor
+            });
 
+            #endregion
 
             #region Students
 
@@ -155,7 +138,12 @@ namespace Data
                 FirstName = "Mara",
                 LastName = "Danciu",
                 Age = 33,
-                Address = address2,
+                Address = new Address
+                {
+                    City = "Bacau",
+                    Street = "Mioritei",
+                    StreetNumber = 2
+                }
             });
 
             context.Students.Add(new Student
@@ -163,7 +151,12 @@ namespace Data
                 FirstName = "Alexandra",
                 LastName = "Stancu",
                 Age = 34,
-                Address = address1,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Traian",
+                    StreetNumber = 23
+                }
             });
 
             context.Students.Add(new Student
@@ -185,7 +178,12 @@ namespace Data
                 FirstName = "Daniel",
                 LastName = "Ciobanu",
                 Age = 27,
-                Address = address3,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Decebal",
+                    StreetNumber = 174
+                }
             });
 
             context.Students.Add(new Student
@@ -193,7 +191,12 @@ namespace Data
                 FirstName = "Culita",
                 LastName = "Victoras",
                 Age = 44,
-                Address = address2,
+                Address = new Address
+                {
+                    City = "Bacau",
+                    Street = "Mioritei",
+                    StreetNumber = 2
+                }
             });
 
             context.Students.Add(new Student
@@ -208,7 +211,12 @@ namespace Data
                 FirstName = "Carmen",
                 LastName = "Ciuca",
                 Age = 22,
-                Address = address4,
+                Address = new Address
+                {
+                    City = "Iasi",
+                    Street = "Catedralei",
+                    StreetNumber = 21
+                }
             });
 
             context.Students.Add(new Student
@@ -223,7 +231,12 @@ namespace Data
                 FirstName = "Crina",
                 LastName = "Vlaicu",
                 Age = 26,
-                Address = address1,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Traian",
+                    StreetNumber = 23
+                }
             });
 
             context.Students.Add(new Student
@@ -231,7 +244,12 @@ namespace Data
                 FirstName = "Flavius",
                 LastName = "Stancuta",
                 Age = 21,
-                Address = address3,
+                Address = new Address
+                {
+                    City = "Bucharest",
+                    Street = "Decebal",
+                    StreetNumber = 174
+                }
             });
 
             #endregion

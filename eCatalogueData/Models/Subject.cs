@@ -10,6 +10,6 @@ namespace Data.Models
         public string Name { get; set; }
 
         [ForeignKey("TeacherId")]
-        public int? TeacherId { get; set; }
+        public int? TeacherId { get; set; }// not necessary
     }
 }

@@ -1,20 +1,20 @@
 using Data;
+using Data.Data;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o => AddSwaggerDocumentation(o));
 
 // DB Connection string
-string connectionString = builder.Configuration.GetConnectionString("DBConnection");
-builder.Services.AddSingleton(new DataLayer(connectionString));
-builder.Services.AddSingleton(new SeedDB(connectionString));
+builder.Services.AddScoped<ECatalogueContextDB>();
+builder.Services.AddScoped<DataLayer>();
+builder.Services.AddScoped<SeedDB>();
 
 var app = builder.Build();
 

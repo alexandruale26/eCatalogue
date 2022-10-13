@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Data.Exceptions;
 using ECatalogueManager.Extensions;
 using System.ComponentModel.DataAnnotations;
+using Data.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECatalogueManager.Controllers
 {
@@ -12,10 +14,12 @@ namespace ECatalogueManager.Controllers
     public class TeachersController : ControllerBase
     {
         private readonly DataLayer dataLayer;
+        private readonly ECatalogueContextDB context;
 
-        public TeachersController(DataLayer dataLayer)
+        public TeachersController(DataLayer dataLayer, ECatalogueContextDB context)
         {
             this.dataLayer = dataLayer;
+            this.context = context;
         }
 
 
@@ -27,7 +31,7 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<TeacherToGet>))]
         public IActionResult GetAllTeachersFromDB()
         {
-            return Ok(dataLayer.GetAllTeachers().Select(t => t.ToDto()).ToList());
+            return Ok(context.Teachers.Include(t => t.Address).Include(t => t.Subject).Select(t => t.ToDto()).ToList());
         }
 
         /// <summary>
@@ -41,7 +45,6 @@ namespace ECatalogueManager.Controllers
         public IActionResult GetTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
             TeacherToGet teacher;
-
             try
             {
                 teacher = dataLayer.GetTeacher(id).ToDto();
@@ -59,21 +62,10 @@ namespace ECatalogueManager.Controllers
         /// <param name="newTeacher">Teacher's data</param>
         /// <returns>Result</returns>
         [HttpPost("create")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeacherToGet))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult CreateStudent([FromBody] TeacherToCreate newTeacher)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BasicTeacherToGet))]
+        public IActionResult CreateTeacher([FromBody] TeacherToCreate newTeacher)
         {
-            TeacherToGet teacher;
-
-            try
-            {
-                teacher = dataLayer.CreateTeacher(newTeacher.ToEntity()).ToDto();
-            }
-            catch (SubjectDoesNotExistException e)
-            {
-                return NotFound(e.message);
-            }
-            return Created("Successfully created",teacher);
+            return Created("Successfully created", dataLayer.CreateTeacher(newTeacher.ToEntity()).ToDtoBasic());
         }
 
         /// <summary>
@@ -149,16 +141,15 @@ namespace ECatalogueManager.Controllers
         /// Removes a teacher
         /// </summary>
         /// <param name="id">Teacher's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
         /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult RemoveTeacher([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress)
+        public IActionResult RemoveTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
             try
             {
-                dataLayer.RemoveTeacher(id, removeAddress);
+                dataLayer.RemoveTeacher(id);
             }
             catch (TeacherDoesNotExistException e)
             {

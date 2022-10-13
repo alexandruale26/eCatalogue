@@ -51,7 +51,6 @@ namespace ECatalogueManager.Extensions
             {
                 FullName = teacher.FullName,
                 Rank = teacher.Rank,
-                Subject = new Subject { SubjectId = teacher.SubjectId }
             };
         }
     }
