@@ -30,7 +30,6 @@ namespace ECatalogueManager.Extensions
             return new Subject
             {
                 Name = subject.Name,
-                TeacherId = subject.TeacherId
             };
         }
 

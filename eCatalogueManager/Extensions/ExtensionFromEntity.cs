@@ -12,7 +12,7 @@ namespace ECatalogueManager.Extensions
                 FirstName = student.FirstName,
                 LastName = student.LastName,
                 Age = student.Age,
-                Address = student.Address
+                Address = student.Address.ToDto(),
             };
         }
 
@@ -28,6 +28,11 @@ namespace ECatalogueManager.Extensions
 
         public static AddressToGet ToDto(this Address address)
         {
+            if(address == null)
+            {
+                return null;
+            }
+
             return new AddressToGet
             {
                 City = address.City,
@@ -38,19 +43,9 @@ namespace ECatalogueManager.Extensions
 
         public static SubjectToGet ToDto(this Subject subject)
         {
-            if (subject.TeacherId == null)
-            {
-                return new SubjectToGet
-                {
-                    Name = subject.Name,
-                    TeacherId = 0,
-                };
-            }
-
             return new SubjectToGet
             {
                 Name = subject.Name,
-                TeacherId = (int)subject.TeacherId,
             };
         }
 
@@ -60,7 +55,6 @@ namespace ECatalogueManager.Extensions
             {
                 Value = mark.Value,
                 SubjectId = mark.SubjectId,
-                TeacherId= mark.TeacherId,
                 CreationDate = mark.CreateDate.ToString(),
             };
         }
@@ -75,12 +69,11 @@ namespace ECatalogueManager.Extensions
             };
         }
 
-        public static List<AveragesPerSubjectToGet> ToDtoByAverage(this Student student)
+        public static List<AveragesPerSubjectToGet> ToDtoByAverage(this List<Mark> marks)
         {
-            return student.Marks
+            return marks
                 .GroupBy(m => m.SubjectId)
-                .Select(m => new AveragesPerSubjectToGet { SubjectId = m.Key, Value = m
-                .Average(m => m.Value) })
+                .Select(m => new AveragesPerSubjectToGet { SubjectId = m.Key, Value = m .Average(m => m.Value) })
                 .ToList();
         }
 
@@ -117,7 +110,7 @@ namespace ECatalogueManager.Extensions
                     FullName = teacher.FullName,
                     Rank = teacher.Rank.RankToName(),
                     Subject = null,
-                    Address = teacher.Address
+                    Address = teacher.Address.ToDto(),
                 };
             }
 
@@ -125,8 +118,8 @@ namespace ECatalogueManager.Extensions
             {
                 FullName = teacher.FullName,
                 Rank = teacher.Rank.RankToName(),
-                Subject = teacher.Subject.Name,
-                Address = teacher.Address
+                Subject = teacher.Subject.ToDto(),
+                Address = teacher.Address.ToDto()
             };
         }
 

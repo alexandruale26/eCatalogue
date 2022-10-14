@@ -6,6 +6,7 @@ using ECatalogueManager.Extensions;
 using System.ComponentModel.DataAnnotations;
 using Data.Data;
 using Microsoft.EntityFrameworkCore;
+using Data.Models;
 
 namespace ECatalogueManager.Controllers
 {
@@ -44,16 +45,13 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            TeacherToGet teacher;
-            try
+            Teacher teacher = context.Teachers.Include(t => t.Address).Include(t => t.Subject).FirstOrDefault(t => t.TeacherId == id);
+
+            if (teacher == null)
             {
-                teacher = dataLayer.GetTeacher(id).ToDto();
+                return NotFound($"Teacher with ID {id} does not exists");
             }
-            catch (TeacherDoesNotExistException e)
-            {
-                return NotFound(e.message);
-            }
-            return Ok(teacher);
+            return Ok(teacher.ToDto());
         }
 
         /// <summary>
@@ -69,50 +67,49 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Creates or updates a teachers's address
+        /// Updates a teachers's address
         /// </summary>
         /// <param name="id">Teacher's ID</param>
-        /// <param name="removeAddress">If want to remove address from database if address is empty</param>
-        /// <param name="newAddress">Address's data</param>
+        /// <param name="newAddress">Address's new data</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/address")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(TeacherToGet))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TeacherToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery] bool removeAddress, [FromBody] AddressToCreate newAddress)
+        public IActionResult UpdateAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
         {
             TeacherToGet address;
             try
             {
-                address = dataLayer.ModifyTeacherAddress(id, removeAddress, newAddress.ToEntity()).ToDto();
+                address = dataLayer.UpdateTeacherAddress(id, newAddress.ToEntity()).ToDto();
             }
             catch (TeacherDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
-            return Created("Successfully updated", address);
+            return Ok(address);
         }
 
         /// <summary>
-        /// Creates or updates a teacher's subject
+        /// Assigns or updates a subject
         /// </summary>
         /// <param name="id">Teacher's ID</param>
-        /// <param name="newSubjectName">Subject's name</param>
+        /// <param name="newSubject">Subject's data</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/subject")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SubjectToGet))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubjectToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyTeacherSubject([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] string newSubjectName)
+        public IActionResult AssignSubject([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] SubjectToCreate newSubject)
         {
             SubjectToGet subject;
             try
             {
-                subject = dataLayer.ModifyTeacherSubject(id, newSubjectName).ToDto();
+                subject = dataLayer.AssignTeacherSubject(id, newSubject.ToEntity()).ToDto();
             }
             catch (TeacherDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
-            return Created("Successfully updated", subject);
+            return Ok(subject);
         }
 
         /// <summary>

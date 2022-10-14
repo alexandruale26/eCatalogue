@@ -6,6 +6,7 @@ using Data.Exceptions;
 using System.ComponentModel.DataAnnotations;
 using Data.Data;
 using Microsoft.EntityFrameworkCore;
+using Data.Models;
 
 namespace ECatalogueManager.Controllers
 {
@@ -29,7 +30,7 @@ namespace ECatalogueManager.Controllers
         /// <returns>Result</returns>
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentToGet>))]
-        public IActionResult GetAllStudentsFromDB()
+        public IActionResult GetAllStudents()
         {
             return Ok(context.Students.Include(s => s.Address).Select(s => s.ToDto()).ToList());
         }
@@ -44,16 +45,12 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            StudentToGet student;
-            try
+            Student student = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == id);
+            if (student == null)
             {
-                student = dataLayer.GetStudent(id).ToDto();
+                return NotFound($"Student with ID {id} does not exists");
             }
-            catch (StudentDoesNotExistsException e)
-            {
-                return NotFound(e.message);
-            }
-            return Ok(student);
+            return Ok(student.ToDto());
         }
 
         /// <summary>
@@ -69,20 +66,20 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Creates or updates a student's address
+        /// Updates a student's address
         /// </summary>
         /// <param name="id">Student's ID</param>
-        /// <param name="newAddress">Address's data</param>
+        /// <param name="newAddress">Address's new data</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/address")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
+        public IActionResult UpdateAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
         {
             StudentToGet student;
             try
             {
-                student = dataLayer.ModifyStudentAddress(id, newAddress.ToEntity()).ToDto();
+                student = dataLayer.UpdateStudentAddress(id, newAddress.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
@@ -92,7 +89,7 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Updates student's data
+        /// Updates a student's data
         /// </summary>
         /// <param name="id">Student's ID</param>
         /// <param name="newStudent">Student's new data</param>
@@ -100,12 +97,12 @@ namespace ECatalogueManager.Controllers
         [HttpPut("{id}/update/data")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BasicStudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult ModifyStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
+        public IActionResult UpdateStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] StudentToCreate newStudent)
         {
             BasicStudentToGet student;
             try
             {
-                student = dataLayer.ModifyStudentData(id, newStudent.ToEntity()).ToDtoBasic();
+                student = dataLayer.UpdateStudentData(id, newStudent.ToEntity()).ToDtoBasic();
             }
             catch (StudentDoesNotExistsException e)
             {

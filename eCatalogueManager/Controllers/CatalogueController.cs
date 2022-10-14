@@ -1,4 +1,5 @@
 ﻿using Data;
+using Data.Data;
 using Data.Models;
 using ECatalogueManager.DTOs;
 using ECatalogueManager.Extensions;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Data.Exceptions;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace ECatalogueManager.Controllers
 {
@@ -14,10 +16,12 @@ namespace ECatalogueManager.Controllers
     public class CatalogueController : ControllerBase
     {
         private readonly DataLayer dataLayer;
+        private readonly ECatalogueContextDB context;
 
-        public CatalogueController(DataLayer dataLayer)
+        public CatalogueController(DataLayer dataLayer, ECatalogueContextDB context)
         {
             this.dataLayer = dataLayer;
+            this.context = context;
         }
 
 
@@ -30,18 +34,14 @@ namespace ECatalogueManager.Controllers
         [HttpGet("students/{id}/marks/all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetAllMarks([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery][Optional][Range(0, int.MaxValue)] int subjectId)
+        public IActionResult GetAllMarksForStudent([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery][Optional][Range(0, int.MaxValue)] int subjectId)
         {
             List<MarkToGet> marks;
             try
             {
-                marks = dataLayer.GetAllMarks(id, subjectId).Select(m => m.ToDto()).ToList();
+                marks = dataLayer.GetAllMarksForStudent(id, subjectId).Select(m => m.ToDto()).ToList();
             }
             catch (StudentDoesNotExistsException e)
-            {
-                return NotFound(e.message);
-            }
-            catch (SubjectDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
@@ -49,93 +49,60 @@ namespace ECatalogueManager.Controllers
         }
 
         /// <summary>
-        /// Retuns averages per subject for a student
+        /// Returns averages per subject for a student
         /// </summary>
         /// <param name="id">Student's ID</param>
+        /// <param name="subjectId">Subject's ID</param>
         /// <returns>Result</returns>
-        [HttpGet("students/{id}/marks/ordered-by-subject-averages")]
+        [HttpGet("students/{id}/subjects/averages")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AveragesPerSubjectToGet>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetAveragesPerSubject([FromRoute][Range(1, int.MaxValue)] int id)
+        public IActionResult GetAveragesPerSubject([FromRoute][Range(1, int.MaxValue)] int id, [FromQuery][Optional][Range(0, int.MaxValue)] int subjectId)
         {
-            Student student;
-
+            List<AveragesPerSubjectToGet> averages;
             try
             {
-                student = dataLayer.GetAveragesPerSubject(id);
+                averages = dataLayer.GetAllMarksForStudent(id, subjectId).ToDtoByAverage();
             }
             catch (StudentDoesNotExistsException e)
             {
                 return NotFound(e.message);
             }
-            return Ok(student.ToDtoByAverage());
+            return Ok(averages);
         }
 
         /// <summary>
         /// Returns all students ordered by averages
         /// </summary>
-        /// <param name="orderByAscending">If want to order students by ascending</param>
+        /// <param name="orderAscending">Order students ascending</param>
         /// <returns>Result</returns>
-        [HttpGet("students/marks/ordered-by-averages")]
+        [HttpGet("students/ordered-by-averages")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<StudentOrderedToGet>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetAllStudentsOrderedByAverages([FromQuery][Optional] bool orderByAscending)
+        public IActionResult GetStudentsOrderedByAverages([FromQuery] bool orderAscending)
         {
-            List<StudentOrderedToGet> result = dataLayer.GetStudentsOrderedByAverages(orderByAscending).Select(s => s.ToDtoOrdered()).ToList();
-
-            // maybe should remove
-            if (result.Count == 0)
+            if (orderAscending)
             {
-                return NotFound("No student found");
+                return Ok(context.Students.Include(s => s.Marks).OrderBy(s => s.Marks.Average(m => m.Value)).Select(s => s.ToDtoOrdered()).ToList());
             }
-            return Ok(result);
+            return Ok(context.Students.Include(s => s.Marks).OrderByDescending(s => s.Marks.Average(m => m.Value)).Select(s => s.ToDtoOrdered()).ToList());
         }
 
         /// <summary>
-        /// Returns all marks by a teacher
+        /// Returns all marks given by a teacher
         /// </summary>
         /// <param name="id">Teacher's ID</param>
         /// <returns>Result</returns>
         [HttpGet("teachers/{id}/marks/all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<MarkByTeacherToGet>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult GetAllMarksByTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            return Ok(dataLayer.GetMarksByTeacher(id).Select(m => m.ToDtoByTeacher()).ToList());
-        }
-
-        /// <summary>
-        /// Returns a subject
-        /// </summary>
-        /// <param name="id">Subject's ID</param>
-        /// <returns>Result</returns>
-        [HttpGet("subjects/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SubjectToGet))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetSubject([FromRoute][Range(1, 1000)] int id)
-        {
-            SubjectToGet subject;
-
-            try
+            Teacher teacher = context.Teachers.FirstOrDefault(t => t.TeacherId == id);
+            if (teacher == null)
             {
-                subject = dataLayer.GetSubject(id).ToDto();
+                return NotFound($"Teacher with ID {id} does not exists");
             }
-            catch (SubjectDoesNotExistException e)
-            {
-                return NotFound(e.message);
-            }
-            return Ok(subject);
-        }
-
-        /// <summary>
-        /// Creates or updates a subject
-        /// </summary>
-        /// <param name="newSubject">Subject's data</param>
-        /// <returns>Result</returns>
-        [HttpPut("subjects/update")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(SubjectToGet))]
-        public IActionResult CreateSubject([FromBody] SubjectToCreate newSubject)
-        {
-            return Created("Successfully created", dataLayer.AddSubject(newSubject.ToEntity()).ToDto());
+            return Ok(context.Marks.Where(m => m.SubjectId == context.Subjects.First(s => s.TeacherId == id).TeacherId).Select(m => m.ToDtoByTeacher()).ToList());
         }
 
         /// <summary>
@@ -161,10 +128,6 @@ namespace ECatalogueManager.Controllers
             {
                 return NotFound(e.message);
             }
-            catch (TeacherDoesNotExistException e)
-            {
-                return NotFound(e.message);
-            }
             return Created("Successfully added", mark);
         }
 
@@ -178,17 +141,15 @@ namespace ECatalogueManager.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult RemoveSubject([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            Subject subject;
-
             try
             {
-                subject = dataLayer.RemoveSubject(id);
+                dataLayer.RemoveSubject(id);
             }
             catch (SubjectDoesNotExistException e)
             {
                 return NotFound(e.message);
             }
-            return Ok($"Subject {subject.Name} was successfully removed");
+            return Ok("Successfully removed");
         }
     }
 }

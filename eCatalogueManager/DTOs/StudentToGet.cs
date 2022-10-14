@@ -1,5 +1,4 @@
-﻿using Data.Models;
-
+﻿
 namespace ECatalogueManager.DTOs
 {
     public class StudentToGet
@@ -7,6 +6,6 @@ namespace ECatalogueManager.DTOs
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public int Age { get; set; }
-        public Address Address { get; set; }
+        public AddressToGet Address { get; set; }
     }
 }
