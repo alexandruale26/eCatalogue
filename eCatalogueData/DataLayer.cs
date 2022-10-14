@@ -13,7 +13,7 @@ namespace Data
         public DataLayer(ECatalogueContextDB context)
         {
             this.context = context;
-        }
+        } 
 
 
         #region Student
