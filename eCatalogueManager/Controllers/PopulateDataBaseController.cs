@@ -4,11 +4,11 @@ namespace ECatalogueManager.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PopulateDataBaseController : ControllerBase
+    public class PopulateDatabaseController : ControllerBase
     {
         private readonly SeedDB seeder;
 
-        public PopulateDataBaseController(SeedDB seeder)
+        public PopulateDatabaseController(SeedDB seeder)
         {
             this.seeder = seeder;
         }

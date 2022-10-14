@@ -1,14 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Data.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace Data.Data
 {
     public class ECatalogueContextDB: DbContext
     {
         private readonly string connectionString;
-        public ECatalogueContextDB(string connectionString)
+        public ECatalogueContextDB(IConfiguration configuration)
         {
-            this.connectionString = connectionString;
+            this.connectionString = configuration.GetConnectionString("DBConnection");
         }
 
         public DbSet<Student> Students { get; set; }

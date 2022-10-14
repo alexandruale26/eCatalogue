@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace Data.Models
 {
@@ -10,10 +9,5 @@ namespace Data.Models
         public string City { get; set; }
         public string Street { get; set; }
         public int StreetNumber { get; set; }
-
-        [JsonIgnore]
-        public List<Student> Students { get; set; } = new List<Student>();
-        public List<Teacher> Teachers { get; set; } = new List<Teacher>();
-
     }
 }

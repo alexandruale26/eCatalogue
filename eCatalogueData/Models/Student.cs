@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Data.Models.Interfaces;
 
 namespace Data.Models
 {
-    public class Student
+    public class Student : IResident
     {
         [Key]
         public int StudentId { get; set; }

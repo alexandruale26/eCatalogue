@@ -5,9 +5,7 @@ namespace ECatalogueManager.DTOs
     {
         public string FullName { get; set; }
         public string Rank { get; set; }
-        public string Subject { get; set; }
-        public string? City { get; set; }
-        public string? Street { get; set; }
-        public int? StreetNumber { get; set; }
+        public SubjectToGet Subject { get; set; }
+        public AddressToGet Address { get; set; }
     }
 }
