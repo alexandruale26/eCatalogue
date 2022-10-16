@@ -55,7 +55,7 @@ namespace ECatalogueManager.Extensions
             {
                 Value = mark.Value,
                 SubjectId = mark.SubjectId,
-                CreationDate = mark.CreateDate.ToString(),
+                CreationDate = mark.CreationDate.ToString(),
             };
         }
 
@@ -65,7 +65,7 @@ namespace ECatalogueManager.Extensions
             {
                 Value = mark.Value,
                 StudentId = mark.StudentId,
-                CreatedDate = mark.CreateDate.ToString(),
+                CreatedDate = mark.CreationDate.ToString(),
             };
         }
 

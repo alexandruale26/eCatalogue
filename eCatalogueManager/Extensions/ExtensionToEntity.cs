@@ -40,7 +40,7 @@ namespace ECatalogueManager.Extensions
                 Value = mark.Value,
                 StudentId = mark.StudentId,
                 SubjectId = mark.SubjectId,
-                CreateDate = DateTime.Now
+                CreationDate = DateTime.Now
             };
         }
 

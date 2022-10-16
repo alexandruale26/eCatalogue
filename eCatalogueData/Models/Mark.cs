@@ -9,6 +9,6 @@ namespace Data.Models
         public int Value { get; set; }
         public int StudentId { get; set; }
         public int SubjectId { get; set; }
-        public DateTime CreateDate { get; set; }
+        public DateTime CreationDate { get; set; }
     }
 }
