@@ -1,4 +1,7 @@
-  #ECatalogue
+  #Project name: ECatalogue
+  #Creator: Tenie Alexandru
+  #Technologies used: Entity Framework, ASP .NET Core Web API
+  
   
   The ECatalogue application is a database manager that deals 
 with the administration of the entities that can belong 
