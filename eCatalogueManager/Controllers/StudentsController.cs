@@ -117,7 +117,7 @@ namespace ECatalogueManager.Controllers
         /// <param name="id">Student's ID</param>
         /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {

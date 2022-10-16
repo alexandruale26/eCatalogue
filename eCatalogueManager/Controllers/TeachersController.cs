@@ -118,7 +118,7 @@ namespace ECatalogueManager.Controllers
         /// <param name="id">Teacher's ID</param>
         /// <returns>Result</returns>
         [HttpPut("{id}/update/rank")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult PromoteTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {
@@ -140,7 +140,7 @@ namespace ECatalogueManager.Controllers
         /// <param name="id">Teacher's ID</param>
         /// <returns>Result</returns>
         [HttpDelete("{id}/delete")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult RemoveTeacher([FromRoute][Range(1, int.MaxValue)] int id)
         {

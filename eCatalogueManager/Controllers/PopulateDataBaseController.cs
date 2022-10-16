@@ -18,7 +18,7 @@ namespace ECatalogueManager.Controllers
         /// </summary>
         /// <returns>Populated Database</returns>
         [HttpPost()]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult SeedDB()
         {
             seeder.PopulateDB();

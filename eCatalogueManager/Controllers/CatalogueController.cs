@@ -137,7 +137,7 @@ namespace ECatalogueManager.Controllers
         /// <param name="id">Subject's ID</param>
         /// <returns>Result</returns>
         [HttpDelete("subjects/{id}/delete")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
         public IActionResult RemoveSubject([FromRoute][Range(1, int.MaxValue)] int id)
         {
