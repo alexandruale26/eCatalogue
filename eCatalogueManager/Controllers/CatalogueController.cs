@@ -102,7 +102,7 @@ namespace ECatalogueManager.Controllers
             {
                 return NotFound($"Teacher with ID {id} does not exists");
             }
-            return Ok(context.Marks.Where(m => m.SubjectId == context.Subjects.First(s => s.TeacherId == id).TeacherId).Select(m => m.ToDtoByTeacher()).ToList());
+            return Ok(context.Marks.Where(m => m.SubjectId == context.Subjects.FirstOrDefault(s => s.TeacherId == id).TeacherId).Select(m => m.ToDtoByTeacher()).ToList());
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ namespace Data
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student existingStudent = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
+            Student existingStudent = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == studentId);
             RemoveAddress(existingStudent);
 
             context.Students.Remove(existingStudent);
@@ -46,7 +46,7 @@ namespace Data
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student studentToModify = context.Students.First(s => s.StudentId == studentId);
+            Student studentToModify = context.Students.FirstOrDefault(s => s.StudentId == studentId);
 
             studentToModify.FirstName = student.FirstName;
             studentToModify.LastName = student.LastName;
@@ -63,7 +63,7 @@ namespace Data
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student existingStudent = context.Students.Include(s => s.Address).First(s => s.StudentId == studentId);
+            Student existingStudent = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == studentId);
             RemoveAddress(existingStudent);
             
             existingStudent.Address = newAddress;
@@ -101,7 +101,7 @@ namespace Data
 
             if (subjectId == 0)
             {
-                return context.Students.Include(s => s.Marks).First(s => s.StudentId == studentId).Marks;
+                return context.Students.Include(s => s.Marks).FirstOrDefault(s => s.StudentId == studentId).Marks;
             }
             return context.Marks.Where(m => m.StudentId == studentId).Where(m => m.SubjectId == subjectId).ToList();
         }
@@ -113,7 +113,7 @@ namespace Data
                 throw new SubjectDoesNotExistException(subjectId);
             }
 
-            RemoveSubject(context.Subjects.First(s => s.SubjectId == subjectId));
+            RemoveSubject(context.Subjects.FirstOrDefault(s => s.SubjectId == subjectId));
             context.SaveChanges();
         }
 
@@ -135,7 +135,7 @@ namespace Data
                 throw new TeacherDoesNotExistException(teacherId);
             }
 
-            Teacher existingTeacher = context.Teachers.Include(t => t.Address).Include(t => t.Subject).First(t => t.TeacherId == teacherId);
+            Teacher existingTeacher = context.Teachers.Include(t => t.Address).Include(t => t.Subject).FirstOrDefault(t => t.TeacherId == teacherId);
             RemoveAddress(existingTeacher);
             RemoveSubject(existingTeacher.Subject);
             
@@ -150,7 +150,7 @@ namespace Data
                 throw new TeacherDoesNotExistException(teacherId);
             }
 
-            Teacher existingTeacher = context.Teachers.Include(t => t.Address).Include(t => t.Subject).First(t => t.TeacherId == teacherId);
+            Teacher existingTeacher = context.Teachers.Include(t => t.Address).Include(t => t.Subject).FirstOrDefault(t => t.TeacherId == teacherId);
             RemoveAddress(existingTeacher);
 
             existingTeacher.Address = newAddress;
@@ -165,7 +165,7 @@ namespace Data
                 throw new TeacherDoesNotExistException(teacherId);
             }
 
-            Teacher existingTeacher = context.Teachers.Include(t => t.Subject).First(t => t.TeacherId == teacherId);
+            Teacher existingTeacher = context.Teachers.Include(t => t.Subject).FirstOrDefault(t => t.TeacherId == teacherId);
             RemoveSubject(existingTeacher.Subject);
 
             existingTeacher.Subject = newSubject;
@@ -180,7 +180,7 @@ namespace Data
                 throw new TeacherDoesNotExistException(teacherId);
             }
 
-            Teacher existingTeacher = context.Teachers.First(t => t.TeacherId == teacherId);
+            Teacher existingTeacher = context.Teachers.FirstOrDefault(t => t.TeacherId == teacherId);
 
             if ((int)existingTeacher.Rank < Enum.GetNames(typeof(Rank)).Length)
             {
@@ -197,7 +197,7 @@ namespace Data
         {
             if (resident.Address != null)
             {
-                context.Addresses.Remove(context.Addresses.First(a => a.AddressId == resident.Address.AddressId));
+                context.Addresses.Remove(context.Addresses.FirstOrDefault(a => a.AddressId == resident.Address.AddressId));
             }
         }
 
