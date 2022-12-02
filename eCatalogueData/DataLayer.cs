@@ -18,56 +18,56 @@ namespace Data
 
         #region Student
 
-        public Student CreateStudent(Student newStudent)
+        public async Task<Student> CreateStudent(Student newStudent)
         {
             context.Students.Add(newStudent);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return newStudent;
         }
 
-        public void RemoveStudent(int studentId)
+        public async Task RemoveStudent(int studentId)
         {
-            if (!context.Students.Any(s => s.StudentId == studentId))
+            if (!await context.Students.AnyAsync(s => s.StudentId == studentId))
             {
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student existingStudent = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == studentId);
+            Student existingStudent = await context.Students.Include(s => s.Address).FirstOrDefaultAsync(s => s.StudentId == studentId);
             RemoveAddress(existingStudent);
 
             context.Students.Remove(existingStudent);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
-        public Student UpdateStudentData(int studentId, Student student)
+        public async Task<Student> UpdateStudentData(int studentId, Student student)
         {
-            if (!context.Students.Any(s => s.StudentId == studentId))
+            if (!await context.Students.AnyAsync(s => s.StudentId == studentId))
             {
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student studentToModify = context.Students.FirstOrDefault(s => s.StudentId == studentId);
+            Student studentToModify = await context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId);
 
             studentToModify.FirstName = student.FirstName;
             studentToModify.LastName = student.LastName;
             studentToModify.Age = student.Age;
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return studentToModify;
         }
 
-        public Student UpdateStudentAddress(int studentId, Address newAddress)
+        public async Task<Student> UpdateStudentAddress(int studentId, Address newAddress)
         {
-            if (!context.Students.Any(s => s.StudentId == studentId))
+            if (!await context.Students.AnyAsync(s => s.StudentId == studentId))
             {
                 throw new StudentDoesNotExistsException(studentId);
             }
 
-            Student existingStudent = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == studentId);
+            Student existingStudent = await context.Students.Include(s => s.Address).FirstOrDefaultAsync(s => s.StudentId == studentId);
             RemoveAddress(existingStudent);
             
             existingStudent.Address = newAddress;
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             return existingStudent;
         }
 

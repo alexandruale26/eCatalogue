@@ -43,9 +43,10 @@ namespace ECatalogueManager.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult GetStudent([FromRoute][Range(1, int.MaxValue)] int id)
+        public async Task<IActionResult> GetStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {
-            Student student = context.Students.Include(s => s.Address).FirstOrDefault(s => s.StudentId == id);
+            // Aici nu primesc erori. doar unde am DTO-uri apar erorile 
+            Student student = await context.Students.Include(s => s.Address).FirstOrDefaultAsync(s => s.StudentId == id);
             if (student == null)
             {
                 return NotFound($"Student with ID {id} does not exists");
@@ -60,9 +61,9 @@ namespace ECatalogueManager.Controllers
         /// <returns>Result</returns>
         [HttpPost("create")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(BasicStudentToGet))]
-        public IActionResult CreateStudent([FromBody] StudentToCreate newStudent)
+        public async Task<IActionResult> CreateStudent([FromBody] StudentToCreate newStudent)
         {
-            return Created("Successfully created", dataLayer.CreateStudent(newStudent.ToEntity()).ToDtoBasic());
+            return Created("Successfully created", await dataLayer.CreateStudent(newStudent.ToEntity()).ToDtoBasic());
         }
 
         /// <summary>
@@ -74,12 +75,12 @@ namespace ECatalogueManager.Controllers
         [HttpPut("{id}/update/address")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StudentToGet))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult UpdateAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
+        public async Task<IActionResult> UpdateAddress([FromRoute][Range(1, int.MaxValue)] int id, [FromBody] AddressToCreate newAddress)
         {
             StudentToGet student;
             try
             {
-                student = dataLayer.UpdateStudentAddress(id, newAddress.ToEntity()).ToDto();
+                student = await dataLayer.UpdateStudentAddress(id, newAddress.ToEntity()).ToDto();
             }
             catch (StudentDoesNotExistsException e)
             {
@@ -119,11 +120,11 @@ namespace ECatalogueManager.Controllers
         [HttpDelete("{id}/delete")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(string))]
-        public IActionResult RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id)
+        public async Task<IActionResult> RemoveStudent([FromRoute][Range(1, int.MaxValue)] int id)
         {
             try
             {
-                dataLayer.RemoveStudent(id);
+                await dataLayer.RemoveStudent(id);
             }
             catch (StudentDoesNotExistsException e)
             {
