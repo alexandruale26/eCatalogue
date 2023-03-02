@@ -1,4 +1,4 @@
-  #Project name: ECatalogue
+  # Project name: ECatalogue
   
   #Technologies used: Entity Framework, ASP .NET Core Web API
   
