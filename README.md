@@ -1,5 +1,5 @@
   #Project name: ECatalogue
-  #Created by: Tenie Alexandru
+  
   #Technologies used: Entity Framework, ASP .NET Core Web API
   
   
